@@ -40,19 +40,19 @@ namespace MiddleStack.Profiling
 
         IList<Snapshot> IAsyncProfiler.GetRecentTransactions(bool inflightOnly)
         {
-            IEnumerable<Snapshot> snapshots;
+            IList<Snapshot> snapshots;
 
             lock (_recentTransactions)
             {
-                snapshots = _recentTransactions.Select(t => t.GetTransactionSnapshot());
+                snapshots = _recentTransactions.Select(t => t.GetTransactionSnapshot()).ToArray();
             }
 
             if (inflightOnly)
             {
-                snapshots = snapshots.Where(t => t.IsFinished);
+                snapshots = snapshots.Where(t => !t.IsFinished).ToArray();
             }
 
-            return snapshots.ToArray();
+            return snapshots;
         }
 
         void IAsyncProfiler.RegisterStepEventHandler(IStepEventHandler stepEventHandler)
@@ -89,12 +89,12 @@ namespace MiddleStack.Profiling
             {
                 lock (_recentTransactions)
                 {
-                    _recentTransactions.Enqueue(step);
-
-                    while (_recentTransactions.Count > MaxTrackedTransactionCount)
+                    while (_recentTransactions.Count >= MaxTrackedTransactionCount)
                     {
                         _recentTransactions.Dequeue();
                     }
+
+                    _recentTransactions.Enqueue(step);
                 }
             }
 
