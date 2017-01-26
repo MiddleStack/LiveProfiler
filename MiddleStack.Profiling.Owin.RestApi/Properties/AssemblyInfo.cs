@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MiddleStack.LiveProfiler")]
+[assembly: AssemblyTitle("MiddleStack.Profiling.Owin.RestApi")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("MiddleStack.LiveProfiler")]
+[assembly: AssemblyProduct("MiddleStack.Profiling.Owin.RestApi")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("b159f9d2-1822-4f66-bf70-bc8308f41eb0")]
+[assembly: Guid("f44499da-da38-433f-9ac8-6e39356932e2")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -34,5 +34,4 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-[assembly: InternalsVisibleTo("MiddleStack.Profiling.Tests")]
 [assembly: InternalsVisibleTo("MiddleStack.Profiling.Owin.RestApi.Tests")]

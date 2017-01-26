@@ -9,130 +9,46 @@ using MiddleStack.Profiling.Events;
 
 namespace MiddleStack.Profiling
 {
-    internal class Step: IStep
+    internal class Step: StepBase
     {
-        private readonly AsyncProfiler _profiler;
-        private int _version;
-        private readonly object _syncRoot = new object();
-        private Stopwatch _stopwatch = Stopwatch.StartNew();
-        private readonly Lazy<List<Step>> _children = new Lazy<List<Step>>(() => new List<Step>());
-
-        public Step(AsyncProfiler profiler, string category, string name, string template, bool forceNewTransaction)
+        public Step(LiveProfiler profiler, string category, string name, string template, StepBase parent) : base(profiler, category, name, template, parent)
         {
-            _profiler = profiler;
-            var parent = forceNewTransaction ? null : CallContextHelper.GetCurrentStep();
-
-            if (parent != null)
-            {
-                if (parent.Transaction.IsFinished)
-                {
-                    // Start a new root step.
-                    parent = null;
-                }
-            }
-
-            Id = Guid.NewGuid();
-            Category = category;
-            Name = name;
-            Template = template;
-            Parent = parent;
-            Transaction = parent?.Transaction ?? this;
-            Start = parent != null ? (parent.Start + parent._stopwatch.Elapsed) : TimeSpan.Zero;
-
-            lock (Transaction._syncRoot)
-            {
-                if (parent != null)
-                {
-                    if (parent.IsFinished)
-                    {
-                        throw new InvalidOperationException("Unable to add a child step to this step, because the latter is already finished.");
-                    }
-
-                    VersionStarted = IncrementVersion();
-                    parent._children.Value.Add(this);
-                }
-
-                CallContextHelper.SetCurrentStep(this);
-
-                profiler.RegisterEvent(new StepEvent(this, Transaction._version, StepEventType.Started), this);
-            }
+            var stepParent = parent as Step;
+            RelativeStart = (stepParent?.RelativeStart ?? TimeSpan.Zero) + (parent?.Elapsed ?? TimeSpan.Zero);
         }
 
-        public Guid Id { get; }
-        public string Category { get; }
-        public string Template { get; }
-        public string Name { get; }
-        public TimeSpan Start { get; }
-
-        public TimeSpan? Duration { get; private set; }
-
-        public bool IsFinished => VersionFinished != null;
-
-        public Step Parent { get; }
-        public Step Transaction { get; }
-        public int VersionStarted { get; }
-        public int? VersionFinished { get; private set; }
-
-        public void Dispose()
+        public override object SyncRoot => Transaction.SyncRoot;
+        public override int Version => Transaction.Version;
+        public override int IncrementVersion()
         {
-            lock (Transaction._syncRoot)
-            {
-                if (!IsFinished)
-                {
-                    if (_children.IsValueCreated && _children.Value.Any(c => !c.IsFinished))
-                    {
-                        throw new InvalidOperationException($"Unable to finish step {Name} because some of its child steps haven't finished.");
-                    }
-
-                    VersionFinished = IncrementVersion();
-                    _stopwatch.Stop();
-                    Duration = _stopwatch.Elapsed;
-                    _stopwatch = null;
-
-                    CallContextHelper.SetCurrentStep(Parent);
-
-                    _profiler.RegisterEvent(new StepEvent(this, Transaction._version, StepEventType.Finished), this);
-                }
-            }
+            return Transaction.IncrementVersion();
         }
 
-        private int IncrementVersion()
+        public Transaction Transaction => Parent as Transaction ?? (Parent as Step)?.Transaction;
+
+        public TimeSpan RelativeStart { get; }
+        public override bool IsTransactionFinished => Transaction.IsFinished;
+        protected override SnapshotBase NewSnapshot()
         {
-            return Interlocked.Increment(ref Transaction._version);
+            return new StepSnapshot();
         }
 
-        internal Snapshot GetSnapshot(int? version)
+        protected override SnapshotBase GetSnapshot(int? version)
         {
-            if (version != null && VersionStarted > version) return null;
+            var snapshot = (StepSnapshot)base.GetSnapshot(version);
 
-            var snapshot = new Snapshot
+            if (snapshot != null)
             {
-                Id = Id,
-                Category = Category,
-                Name = Name,
-                Template = Template,
-                Start = Start
-            };
-
-            if (version == null || VersionFinished <= version)
-            {
-                snapshot.Duration = Duration;
-                snapshot.IsFinished = IsFinished;
-            }
-
-            if (_children.IsValueCreated)
-            {
-                snapshot.Steps = _children.Value
-                    .Select(child => child.GetSnapshot(version))
-                    .Where(s => s != null).ToArray();
+                snapshot.RelativeStart = RelativeStart;
             }
 
             return snapshot;
         }
 
-        public Snapshot GetTransactionSnapshot()
+        protected override IProfilerEvent GetFinishEvent(int version)
         {
-            return Transaction.GetSnapshot(null);
+            return new StepFinishEvent(this, version);
         }
+
     }
 }

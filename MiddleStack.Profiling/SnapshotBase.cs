@@ -10,7 +10,7 @@ namespace MiddleStack.Profiling
     ///     Represents snapshot of a profiled transaction or a step within a transaction,
     ///     at a particular moment in time.
     /// </summary>
-    public class Snapshot
+    public abstract class SnapshotBase
     {
         /// <summary>
         ///     Gets or sets the unique identifier of a transaction or step.
@@ -64,23 +64,20 @@ namespace MiddleStack.Profiling
         /// </value>
         public string Name { get; set; }
         /// <summary>
-        ///     Gets or sets the time at which this step was started, relative to the 
-        ///     starting time of the entire transaction. If this is a transaction rather than 
-        ///     a step, this value is always <see cref="TimeSpan.Zero"/>.
+        ///     Gets or sets the absolute date/time at which this step was started.
         /// </summary>
         /// <value>
-        ///     A <see cref="TimeSpan"/> value indicating the relative time at which this 
-        ///     step was started. Always <see cref="TimeSpan.Zero"/> if this is a transaction.
+        ///     A <see cref="DateTimeOffset"/> value indicating the absolute date/time at which this 
+        ///     step was started.
         /// </value>
-        public TimeSpan Start { get; set; }
+        public DateTimeOffset Start { get; set; }
         /// <summary>
-        ///     Gets or sets the duration of this transaction or step, if it's already finished.
+        ///     Gets or sets the duration of this transaction or step, whether or not it's finished executing.
         /// </summary>
         /// <value>
-        ///     A <see cref="TimeSpan"/> value providing the duration of this transaction/step
-        ///     has finished. <see langword="null"/> if it's not finished.
+        ///     A <see cref="TimeSpan"/> value providing the duration of this transaction/step.
         /// </value>
-        public TimeSpan? Duration { get; set; }
+        public TimeSpan Duration { get; set; }
         /// <summary>
         ///     Gets or sets whether this transaction or step has finished.
         /// </summary>
@@ -96,6 +93,6 @@ namespace MiddleStack.Profiling
         ///     An array of non-empty child steps if this transaction/step has children.
         ///     Otherwise, <see langword="null"/>.
         /// </value>
-        public Snapshot[] Steps { get; set; }
+        public StepSnapshot[] Steps { get; set; }
     }
 }
