@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TransactionState.cs" />
     <Compile Include="LiveProfiler.cs" />
     <Compile Include="CallContextHelper.cs" />
     <Compile Include="Events\IProfilerEventHandlerAsync.cs" />

@@ -13,7 +13,7 @@ namespace MiddleStack.Profiling
         private int _version;
         private static int _sequenceSeed;
 
-        public Transaction(LiveProfiler profiler, string category, string name, string template, string correlationId) : base(profiler, category, name, template, null)
+        public Transaction(LiveProfiler profiler, string category, string name, object parameters, string correlationId) : base(profiler, category, name, parameters, null)
         {
             CorrelationId = correlationId;
             Sequence = Interlocked.Increment(ref _sequenceSeed);
@@ -30,7 +30,8 @@ namespace MiddleStack.Profiling
             return Interlocked.Increment(ref _version);
         }
 
-        public override bool IsTransactionFinished => IsFinished;
+        public override TransactionState TransactionState => State;
+
         public TransactionSnapshot GetTransactionSnapshot()
         {
             return GetTransactionSnapshot(null);

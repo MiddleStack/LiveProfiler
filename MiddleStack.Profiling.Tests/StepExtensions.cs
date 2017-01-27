@@ -10,13 +10,15 @@ namespace MiddleStack.Profiling.Tests
     internal static class StepExtensions
     {
         public static void AssertChildlessStep(this SnapshotBase step, string category, 
-            string name, string prototype, TimeSpan start, bool isFinished, TimeSpan? duration = null,
-            string correlationId = null)
+            string name, string prototype, TimeSpan start, TransactionState state, TimeSpan? duration = null,
+            string correlationId = null,
+            object result = null)
         {
             step.Should().NotBeNull();
             step.Category.Should().Be(category);
             step.Name.Should().Be(name);
-            step.Template.Should().Be(prototype);
+            step.Parameters.Should().Be(prototype);
+            step.Result.Should().Be(result);
             (step as TransactionSnapshot)?.CorrelationId.Should().Be(correlationId);
 
             ((step as StepSnapshot)?.RelativeStart ?? TimeSpan.Zero).Should().BeCloseTo(start, 50);
@@ -24,25 +26,27 @@ namespace MiddleStack.Profiling.Tests
             {
                 step.Duration.Should().BeCloseTo(duration.Value, 50);
             }
-            step.IsFinished.Should().Be(isFinished);
+            step.State.Should().Be(state);
             step.Steps.Should().BeNull();
         }
 
         public static void AssertStep(this SnapshotBase step, string category,
-            string name, string prototype, TimeSpan start, bool isFinished, TimeSpan? duration = null,
+            string name, string prototype, TimeSpan start, TransactionState state, TimeSpan? duration = null,
             int? childrenCount = null,
-            Action<IList<StepSnapshot>> childrenAssertion = null)
+            Action<IList<StepSnapshot>> childrenAssertion = null,
+            object result = null)
         {
             step.Should().NotBeNull();
             step.Category.Should().Be(category);
             step.Name.Should().Be(name);
-            step.Template.Should().Be(prototype);
+            step.Parameters.Should().Be(prototype);
+            step.Result.Should().Be(result);
             ((step as StepSnapshot)?.RelativeStart ?? TimeSpan.Zero).Should().BeCloseTo(start, 50);
             if (duration != null)
             {
                 step.Duration.Should().BeCloseTo(duration.Value, 50);
             }
-            step.IsFinished.Should().Be(isFinished);
+            step.State.Should().Be(state);
 
             if (childrenCount != null)
             {

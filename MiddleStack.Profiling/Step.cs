@@ -11,7 +11,7 @@ namespace MiddleStack.Profiling
 {
     internal class Step: StepBase
     {
-        public Step(LiveProfiler profiler, string category, string name, string template, StepBase parent) : base(profiler, category, name, template, parent)
+        public Step(LiveProfiler profiler, string category, string name, object parameters, StepBase parent) : base(profiler, category, name, parameters, parent)
         {
             var stepParent = parent as Step;
             RelativeStart = (stepParent?.RelativeStart ?? TimeSpan.Zero) + (parent?.Elapsed ?? TimeSpan.Zero);
@@ -27,7 +27,7 @@ namespace MiddleStack.Profiling
         public Transaction Transaction => Parent as Transaction ?? (Parent as Step)?.Transaction;
 
         public TimeSpan RelativeStart { get; }
-        public override bool IsTransactionFinished => Transaction.IsFinished;
+        public override TransactionState TransactionState => Transaction.State;
         protected override SnapshotBase NewSnapshot()
         {
             return new StepSnapshot();

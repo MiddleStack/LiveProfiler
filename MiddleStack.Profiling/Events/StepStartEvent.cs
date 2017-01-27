@@ -10,19 +10,11 @@ namespace MiddleStack.Profiling.Events
     {
         public StepStartEvent(Step step, int version): base(step, version)
         {
-            ParentId = step.Parent?.Id;
-            Category = step.Category;
-            Template = step.Template;
-            Name = step.Name;
-            Start = step.Start;
+            ParentId = step.Parent.Id;
             RelativeStart = step.RelativeStart;
         }
 
-        public Guid? ParentId { get; }
-        public string Category { get; }
-        public string Template { get; }
-        public string Name { get; }
-        public DateTimeOffset Start { get; }
+        public Guid ParentId { get; }
         public TimeSpan RelativeStart { get; }
     }
 }

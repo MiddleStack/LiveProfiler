@@ -15,9 +15,23 @@ namespace MiddleStack.Profiling.Events
         ///     Gets the duration of this transaction, if it's already finished.
         /// </summary>
         /// <value>
-        ///     A <see cref="TimeSpan"/> value providing the duration of this transaction
-        ///     has finished. <see langword="null"/> if it's not finished.
+        ///     A <see cref="TimeSpan"/> value providing the duration of this transaction.
         /// </value>
-        TimeSpan? Duration { get; }
+        TimeSpan Duration { get; }
+        /// <summary>
+        ///     Gets whether this transaction was successful.
+        /// </summary>
+        /// <value>
+        ///     <see langword="true"/> if this transaction was successful. 
+        ///     <see langword="false"/> if this transaction failed.
+        /// </value>
+        bool IsSuccess { get; }
+        /// <summary>
+        ///     Gets the result with which this transaction finished.
+        /// </summary>
+        /// <value>
+        ///     A simple object encapsulating the result of this transaction.
+        /// </value>
+        object Result { get; set; }
     }
 }

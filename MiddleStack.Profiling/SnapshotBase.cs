@@ -33,36 +33,29 @@ namespace MiddleStack.Profiling
         /// </value>
         public string Category { get; set; }
         /// <summary>
-        ///     Gets or sets the optional template from which <see cref="Name"/> was created.
+        ///     Gets or sets the name of this transaction. It is recommended that the name
+        ///     does not contain any instance-specific values, such as entity ids. Such values
+        ///     should be placed in the <see cref="Parameters"/> object.
         /// </summary>
-        /// <remarks>
-        ///     <para>Optional. A template string from which <see cref="Name"/> was built, that 
-        ///     doesn't have any of the step-specific information, such as entity Ids.
-        ///     For example, if the step is an HTTP query, the name would be the Method + URL, but not the host name and entity Ids:</para>
-        ///     <code>
-        ///         GET /api/v1.0/users/[userid]/settings/[settingid]
-        ///     </code>
-        /// </remarks>
         /// <value>
-        ///     A <see cref="string"/> providing the template of this snapshot. Could be <see langword="null"/>
-        ///     if the template is not applicable to this particular type of transaction/step, or 
-        ///     if it's not simply not recorded.
-        /// </value>
-        public string Template { get; set; }
-        /// <summary>
-        ///     Gets or sets the name of this transaction.
-        /// </summary>
-        /// <remarks>
-        ///     <para>The name contains information that is unique to this particular step.
-        ///     For example, if the step is an HTTP query, the name could contain specific host and entity Ids in the URL:</para>
-        ///     <code>
-        ///         GET http://acme.com/api/v1.0/users/123/settings/456
-        ///     </code>
-        /// </remarks>
-        /// <value>
-        ///     A <see cref="string"/> providing the name of this transaction.
+        ///     A <see cref="string"/> providing the name of this transaction or step.
         /// </value>
         public string Name { get; set; }
+        /// <summary>
+        ///     Gets or sets the parameters with which this transaction or step was 
+        ///     initialized.
+        /// </summary>
+        /// <value>
+        ///     A simple object encapsulating the parameters of this transaction or step.
+        /// </value>
+        public object Parameters { get; set; }
+        /// <summary>
+        ///     Gets or sets the result with which this transaction or step finished.
+        /// </summary>
+        /// <value>
+        ///     A simple object encapsulating the result of this transaction or step.
+        /// </value>
+        public object Result { get; set; }
         /// <summary>
         ///     Gets or sets the absolute date/time at which this step was started.
         /// </summary>
@@ -79,13 +72,13 @@ namespace MiddleStack.Profiling
         /// </value>
         public TimeSpan Duration { get; set; }
         /// <summary>
-        ///     Gets or sets whether this transaction or step has finished.
+        ///     Gets or sets the state of this transaction or state.
         /// </summary>
         /// <value>
-        ///     <see langword="true"/> if this transaction/step has finished.
-        ///     <see langword="false"/> if this transaction/step is still inflight.
+        ///     A <see cref="TransactionState"/> value.
         /// </value>
-        public bool IsFinished { get; set; }
+        public TransactionState State { get; set; }
+
         /// <summary>
         ///     Gets or sets the child steps of this transaction or step.
         /// </summary>

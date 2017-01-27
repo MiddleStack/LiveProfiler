@@ -16,9 +16,16 @@ namespace MiddleStack.Profiling.Events
             _step = step;
             _version = version;
             Id = step.Id;
+            Category = step.Category;
+            Parameters = step.Parameters;
+            Name = step.Name;
+            Start = step.Start;
         }
-
         public Guid Id { get; }
+        public string Category { get; }
+        public object Parameters { get; }
+        public string Name { get; }
+        public DateTimeOffset Start { get; }
         public TransactionSnapshot GetTransactionSnapshot()
         {
             var transaction = _step as Transaction;

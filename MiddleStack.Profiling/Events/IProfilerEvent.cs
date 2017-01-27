@@ -20,6 +20,42 @@ namespace MiddleStack.Profiling.Events
         /// </value>
         Guid Id { get; }
         /// <summary>
+        ///     Gets the category of the transaction or step. 
+        /// </summary>
+        /// <remarks>
+        ///     <para>The category is a string that  
+        ///     can be used to categorize many transactions/steps of the same type. For example, "MSSQL" is
+        ///     the category for all Microsoft SQL Server queries, "HTTP" is the category for
+        ///     all HTTP calls.</para>
+        /// </remarks>
+        /// <value>
+        ///     A <see cref="string"/> providing the category of the step.
+        /// </value>
+        string Category { get; }
+        /// <summary>
+        ///     Gets the parameters with which this transaction or step was 
+        ///     initialized.
+        /// </summary>
+        /// <value>
+        ///     A simple object encapsulating the parameters of this transaction or step.
+        /// </value>
+        object Parameters { get; }
+        /// <summary>
+        ///     Gets the name of this transaction or step.
+        /// </summary>
+        /// <value>
+        ///     A <see cref="string"/> providing the name of this step.
+        /// </value>
+        string Name { get; }
+        /// <summary>
+        ///     Gets the absolute date/time at which this transaction or step was started.
+        /// </summary>
+        /// <value>
+        ///     A <see cref="DateTimeOffset"/> value indicating the absolute date/time at which this 
+        ///     transaction or step was started.
+        /// </value>
+        DateTimeOffset Start { get; }
+        /// <summary>
         ///     Gets a snapshot of the entire transaction, at the time of this event.
         /// </summary>
         /// <returns>

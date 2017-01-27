@@ -25,19 +25,16 @@ namespace MiddleStack.Profiling
         ///     all HTTP calls.
         /// </param>
         /// <param name="name">
-        ///     <para>An identifier for the step that contains information that is unique to this particular step.
-        ///         For example, if the step is an HTTP query, the name could contain specific host and entity Ids in the URL:</para>
+        ///     <para>An identifier for the step. It should not contain volatile data such as entity Ids,
+        ///     which should be placed in <paramref name="parameters"/>. The following name for an HTTP 
+        ///     call is an ideal example, in which volatile data is replaced with placeholders.</para>
         ///     <code>
-        ///         GET http://acme.com/api/v1.0/users/123/settings/456
+        ///         GET http://acme.com/api/v1.0/users/[UserId]/settings/[SettingId]
         ///     </code>
         /// </param>
-        /// <param name="template">
-        ///     <para>Optional. A template string from which <paramref name="name"/> was built, that 
-        ///         doesn't have any of the step-specific information, such as entity Ids.
-        ///         For example, if the step is an HTTP query, the name would be the Method + URL, but not the host name and entity Ids:</para>
-        ///     <code>
-        ///         GET /api/v1.0/users/[userid]/settings/[settingid]
-        ///     </code>
+        /// <param name="parameters">
+        ///     Optional. The parameters with which this step is initialized. This should be a simple object
+        ///     that is JSON-serializable, and its state should not change after this call.
         /// </param>
         /// <returns>
         ///     An <see cref="IStep"/> object which, when disposed, marks this step as finished.
@@ -48,10 +45,8 @@ namespace MiddleStack.Profiling
         ///     <para>The argument <paramref name="category"/> is <see langword="null"/> or empty.</para>
         ///     <para>-or-</para>
         ///     <para>The argument <paramref name="name"/> is <see langword="null"/> or empty.</para>
-        ///     <para>-or-</para>
-        ///     <para>The argument <paramref name="template"/> is specified but empty.</para>
         /// </exception>
-        IStep Step(string category, string name, string template = null);
+        IStep Step(string category, string name, object parameters = null);
 
         /// <summary>
         ///     Start a new transaction, if there is no inflight transaction.  If there is already an inflight exception
@@ -64,19 +59,16 @@ namespace MiddleStack.Profiling
         ///     all HTTP calls.
         /// </param>
         /// <param name="name">
-        ///     <para>An identifier for the transaction that contains information that is unique to this particular transaction.
-        ///         For example, if the transaction is an HTTP query, the name could contain specific host and entity Ids in the URL:</para>
+        ///     <para>An identifier for the transaction. It should not contain volatile data such as entity Ids,
+        ///     which should be placed in <paramref name="parameters"/>. The following name for an HTTP 
+        ///     call is an ideal example, in which volatile data is replaced with placeholders.</para>
         ///     <code>
-        ///         GET http://acme.com/api/v1.0/users/123/settings/456
+        ///         GET http://acme.com/api/v1.0/users/[UserId]/settings/[SettingId]
         ///     </code>
         /// </param>
-        /// <param name="template">
-        ///     <para>Optional. A template string from which <paramref name="name"/> was built, that 
-        ///         doesn't have any of the transaction-specific information, such as entity Ids.
-        ///         For example, if the transaction is an HTTP query, the name would be the Method + URL, but not the host name and entity Ids:</para>
-        ///     <code>
-        ///         GET /api/v1.0/users/[userid]/settings/[settingid]
-        ///     </code>
+        /// <param name="parameters">
+        ///     Optional. The parameters with which this transaction is initialized. This should be a simple object
+        ///     that is JSON-serializable, and its state should not change after this call.
         /// </param>
         /// <param name="correlationId">
         ///     An identifier that can associate multiple transactions. Optional.
@@ -96,14 +88,12 @@ namespace MiddleStack.Profiling
         ///     <para>The argument <paramref name="category"/> is <see langword="null"/> or empty.</para>
         ///     <para>-or-</para>
         ///     <para>The argument <paramref name="name"/> is <see langword="null"/> or empty.</para>
-        ///     <para>-or-</para>
-        ///     <para>The argument <paramref name="template"/> is specified but empty.</para>
         /// </exception>
         /// <exception cref="InvalidOperationException">
         ///     There is already an inflight transaction in the current context, and <paramref name="forceNew"/>
         ///     is <see langword="false"/>.
         /// </exception>
-        ITransaction NewTransaction(string category, string name, string template = null, string correlationId = null, bool forceNew = false);
+        ITransaction NewTransaction(string category, string name, object parameters = null, string correlationId = null, bool forceNew = false);
 
         /// <summary>
         ///     Gets the snapshots of up to 100 transactions that have recently been started.

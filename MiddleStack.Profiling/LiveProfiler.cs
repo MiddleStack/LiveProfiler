@@ -29,11 +29,10 @@ namespace MiddleStack.Profiling
         /// </value>
         public static ILiveProfiler Instance { get; } = new LiveProfiler();
 
-        IStep ILiveProfiler.Step(string category, string name, string template)
+        IStep ILiveProfiler.Step(string category, string name, object parameters)
         {
             if (String.IsNullOrWhiteSpace(category)) throw new ArgumentNullException(nameof(category));
             if (String.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-            if (template != null && String.IsNullOrWhiteSpace(template)) throw new ArgumentNullException(nameof(template));
 
             var currentStep = CallContextHelper.GetCurrentStep();
 
@@ -41,9 +40,9 @@ namespace MiddleStack.Profiling
             {
                 lock (currentStep.SyncRoot)
                 {
-                    if (!currentStep.IsFinished)
+                    if (currentStep.State == TransactionState.Inflight)
                     {
-                        var step = new Step(this, category, name, template, currentStep);
+                        var step = new Step(this, category, name, parameters, currentStep);
 
                         CallContextHelper.SetCurrentStep(step);
                         RegisterEvent(new StepStartEvent(step, step.Version), step);
@@ -56,20 +55,19 @@ namespace MiddleStack.Profiling
             return null;
         }
 
-        ITransaction ILiveProfiler.NewTransaction(string category, string name, string template, string correlationId, bool forceNew)
+        ITransaction ILiveProfiler.NewTransaction(string category, string name, object parameters, string correlationId, bool forceNew)
         {
             if (String.IsNullOrWhiteSpace(category)) throw new ArgumentNullException(nameof(category));
             if (String.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
-            if (template != null && String.IsNullOrWhiteSpace(template)) throw new ArgumentNullException(nameof(template));
 
             var currentStep = CallContextHelper.GetCurrentStep();
 
-            if (currentStep != null && !currentStep.IsFinished && !forceNew)
+            if (currentStep != null && currentStep.State == TransactionState.Inflight && !forceNew)
             {
-                throw new InvalidOperationException($"An outstanding transaction is still inflight in the present context. The new transaction {name}, category {category}, template {template} cannot be created.");
+                throw new InvalidOperationException($"An outstanding transaction is still inflight in the present context. The new transaction {name}, category {category}, cannot be created.");
             }
 
-            var transaction = new Transaction(this, category, name, template, correlationId);
+            var transaction = new Transaction(this, category, name, parameters, correlationId);
 
             lock (transaction.SyncRoot)
             {
@@ -91,7 +89,7 @@ namespace MiddleStack.Profiling
 
             if (inflightOnly)
             {
-                snapshots = snapshots.Where(t => !t.IsFinished).ToArray();
+                snapshots = snapshots.Where(t => t.State == TransactionState.Inflight).ToArray();
             }
 
             return snapshots;

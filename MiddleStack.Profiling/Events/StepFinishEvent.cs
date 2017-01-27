@@ -11,8 +11,12 @@ namespace MiddleStack.Profiling.Events
         public StepFinishEvent(Step step, int version) : base(step, version)
         {
             Duration = step.Duration;
+            IsSuccess = step.State == TransactionState.Success;
+            Result = step.Result;
         }
 
-        public TimeSpan? Duration { get; }
+        public TimeSpan Duration { get; }
+        public bool IsSuccess { get; }
+        public object Result { get; set; }
     }
 }

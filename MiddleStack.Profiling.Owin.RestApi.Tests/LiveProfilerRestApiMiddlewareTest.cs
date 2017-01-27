@@ -92,7 +92,7 @@ namespace MiddleStack.Profiling.Owin.RestApi.Tests
 
                 for (var i = 0; i < 10; i++)
                 {
-                    var transaction = LiveProfiler.Instance.NewTransaction(i.ToString(), i.ToString(), forceNew:true);
+                    var transaction = LiveProfiler.Instance.NewTransaction(i.ToString(), i.ToString(), forceNew: true);
                     LiveProfiler.Instance.Step(i.ToString(), i.ToString());
 
                     inflightTransactions.Add(transaction);
@@ -148,7 +148,7 @@ namespace MiddleStack.Profiling.Owin.RestApi.Tests
 
                 for (var i = 0; i < 10; i++)
                 {
-                    var transaction = LiveProfiler.Instance.NewTransaction(i.ToString(), i.ToString(), forceNew:true);
+                    var transaction = LiveProfiler.Instance.NewTransaction(i.ToString(), i.ToString(), forceNew: true);
                     LiveProfiler.Instance.Step(i.ToString(), i.ToString());
 
                     inflightTransactions.Add(transaction);
