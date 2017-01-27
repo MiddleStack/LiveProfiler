@@ -9,17 +9,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace MiddleStack.Profiling.Owin.RestApi
 {
-    /// <summary>
-    ///     An OWIN middleware that provides a REST API to access LiveProfiler data.
-    /// </summary>
-    /// <remarks>
-    ///     <para>The endpoints offered are:</para>
-    ///     <list type="bullet">
-    ///         <item>GET /liveprofiler/api/v1.0/transactions/recent</item>
-    ///         <item>GET /liveprofiler/api/v1.0/transactions/inflight</item>
-    ///     </list>
-    /// </remarks>
-    public class LiveProfilerRestApiMiddleware: OwinMiddleware
+    internal class LiveProfilerRestApiMiddleware: OwinMiddleware
     {
         private readonly OwinMiddleware _next;
 

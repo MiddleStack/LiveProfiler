@@ -36,7 +36,7 @@ namespace MiddleStack.Profiling.Owin.RestApi.Tests
             {
                 _server = WebApp.Start(baseUrl, app =>
                 {
-                    app.Map(basePath, app2 => app2.Use<LiveProfilerRestApiMiddleware>());
+                    app.Map(basePath, app2 => app2.UseLiveProfilerRestApi());
                 });
             }
             catch (Exception x)
