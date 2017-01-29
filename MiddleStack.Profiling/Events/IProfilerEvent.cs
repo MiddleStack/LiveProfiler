@@ -41,12 +41,23 @@ namespace MiddleStack.Profiling.Events
         /// </value>
         object Parameters { get; }
         /// <summary>
-        ///     Gets the name of this transaction or step.
+        ///     Gets the name of this transaction or step. The name
+        ///     does not contain any instance-specific values, such as entity ids. Such values
+        ///     are found in the <see cref="Parameters"/> object.
         /// </summary>
         /// <value>
-        ///     A <see cref="string"/> providing the name of this step.
+        ///     A <see cref="string"/> providing the name of this transaction or step.
         /// </value>
         string Name { get; }
+        /// <summary>
+        ///     Gets the optional display name of this transaction or step. This name is distinguished
+        ///     from <see cref="Name"/> in that it may contain some instance specific values 
+        ///     from <see cref="Parameters"/>.
+        /// </summary>
+        /// <value>
+        ///     A <see cref="string"/> providing the display name of this transaction or step.
+        /// </value>
+        string DisplayName { get; }
         /// <summary>
         ///     Gets the absolute date/time at which this transaction or step was started.
         /// </summary>

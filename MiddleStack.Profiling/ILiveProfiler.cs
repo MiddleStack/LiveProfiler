@@ -26,10 +26,17 @@ namespace MiddleStack.Profiling
         /// </param>
         /// <param name="name">
         ///     <para>An identifier for the step. It should not contain volatile data such as entity Ids,
-        ///     which should be placed in <paramref name="parameters"/>. The following name for an HTTP 
-        ///     call is an ideal example, in which volatile data is replaced with placeholders.</para>
+        ///         which should be placed in <paramref name="parameters"/>. The following name for an HTTP 
+        ///         call is an ideal example, in which volatile data is replaced with placeholders.</para>
         ///     <code>
-        ///         GET http://acme.com/api/v1.0/users/[UserId]/settings/[SettingId]
+        ///         GET http://acme.com/api/v1.0/users/{UserId}/settings/{SettingId}
+        ///     </code>
+        /// </param>
+        /// <param name="displayName">
+        ///     <para>Optional. An identifier for the step that, unlike <paramref name="name"/> may contain 
+        ///         some or all of the volatile data from <paramref name="parameters"/>. For example:</para>
+        ///     <code>
+        ///         GET http://acme.com/api/v1.0/users/123/settings/456
         ///     </code>
         /// </param>
         /// <param name="parameters">
@@ -37,7 +44,7 @@ namespace MiddleStack.Profiling
         ///     that is JSON-serializable, and its state should not change after this call.
         /// </param>
         /// <returns>
-        ///     An <see cref="IStep"/> object which, when disposed, marks this step as finished.
+        ///     An <see cref="ITiming"/> object which, when disposed, marks this step as finished.
         ///     It can also be used to access the current state of the transaction. If no step is created, 
         ///     <see langword="null"/>.
         /// </returns>
@@ -46,7 +53,7 @@ namespace MiddleStack.Profiling
         ///     <para>-or-</para>
         ///     <para>The argument <paramref name="name"/> is <see langword="null"/> or empty.</para>
         /// </exception>
-        IStep Step(string category, string name, object parameters = null);
+        ITiming Step(string category, string name, string displayName = null, object parameters = null);
 
         /// <summary>
         ///     Start a new transaction, if there is no inflight transaction.  If there is already an inflight exception
@@ -60,10 +67,17 @@ namespace MiddleStack.Profiling
         /// </param>
         /// <param name="name">
         ///     <para>An identifier for the transaction. It should not contain volatile data such as entity Ids,
-        ///     which should be placed in <paramref name="parameters"/>. The following name for an HTTP 
-        ///     call is an ideal example, in which volatile data is replaced with placeholders.</para>
+        ///         which should be placed in <paramref name="parameters"/>. The following name for an HTTP 
+        ///         call is an ideal example, in which volatile data is replaced with placeholders.</para>
         ///     <code>
-        ///         GET http://acme.com/api/v1.0/users/[UserId]/settings/[SettingId]
+        ///         GET http://acme.com/api/v1.0/users/{UserId}/settings/{SettingId}
+        ///     </code>
+        /// </param>
+        /// <param name="displayName">
+        ///     <para>Optional. An identifier for the transaction that, unlike <paramref name="name"/> may contain 
+        ///         some or all of the volatile data from <paramref name="parameters"/>. For example:</para>
+        ///     <code>
+        ///         GET http://acme.com/api/v1.0/users/123/settings/456
         ///     </code>
         /// </param>
         /// <param name="parameters">
@@ -73,14 +87,11 @@ namespace MiddleStack.Profiling
         /// <param name="correlationId">
         ///     An identifier that can associate multiple transactions. Optional.
         /// </param>
-        /// <param name="forceNew">
-        ///     If <see langword="true"/>, always start a new transaction even if there is already a 
-        ///     transaction in flight in the current context. Specify <see langword="true"/>
-        ///     if the caller does not want a new thread to inherit the transaction started by a parent thread.
-        ///     <see langword="false"/> by default.
+        /// <param name="mode">
+        ///     Indicates how the transaction is to be created. The default is <see cref="TransactionMode.New"/>.
         /// </param>
         /// <returns>
-        ///     An <see cref="ITransaction"/> object which, when disposed, marks this transaction as finished.
+        ///     An <see cref="ITiming"/> object which, when disposed, marks this transaction as finished.
         ///     It can also be used to access the current state of the transaction.
         ///     Never <see langword="null"/>.
         /// </returns>
@@ -90,10 +101,10 @@ namespace MiddleStack.Profiling
         ///     <para>The argument <paramref name="name"/> is <see langword="null"/> or empty.</para>
         /// </exception>
         /// <exception cref="InvalidOperationException">
-        ///     There is already an inflight transaction in the current context, and <paramref name="forceNew"/>
-        ///     is <see langword="false"/>.
+        ///     There is already an inflight transaction in the current context, and <paramref name="mode"/>
+        ///     is <see cref="TransactionMode.New"/>.
         /// </exception>
-        ITransaction NewTransaction(string category, string name, object parameters = null, string correlationId = null, bool forceNew = false);
+        ITiming Transaction(string category, string name, string displayName = null, object parameters = null, string correlationId = null, TransactionMode mode = TransactionMode.New);
 
         /// <summary>
         ///     Gets the snapshots of up to 100 transactions that have recently been started.
@@ -109,47 +120,47 @@ namespace MiddleStack.Profiling
         IList<TransactionSnapshot> GetRecentTransactions(bool inflightOnly = false);
 
         /// <summary>
-        ///     Registers a <see cref="IProfilerEventHandler"/> to handle step events raised
+        ///     Registers a <see cref="IProfilerEventSubscriber"/> to handle step events raised
         ///     by this <see cref="ILiveProfiler"/>.
         /// </summary>
-        /// <param name="eventHandler"></param>
+        /// <param name="eventSubscriber"></param>
         /// <exception cref="ArgumentNullException">
-        ///     The argument <paramref name="eventHandler"/> is <see langword="null"/>.
+        ///     The argument <paramref name="eventSubscriber"/> is <see langword="null"/>.
         /// </exception>
-        void RegisterEventHandler(IProfilerEventHandler eventHandler);
+        void RegisterEventSubscriber(IProfilerEventSubscriber eventSubscriber);
 
         /// <summary>
-        ///     Registers a <see cref="IProfilerEventHandlerAsync"/> to handle step events raised
+        ///     Registers a <see cref="IProfilerEventSubscriberAsync"/> to handle step events raised
         ///     by this <see cref="ILiveProfiler"/>.
         /// </summary>
-        /// <param name="eventHandler">
+        /// <param name="eventSubscriber">
         ///     The handler to start receiving events.
         /// </param>
         /// <exception cref="ArgumentNullException">
-        ///     The argument <paramref name="eventHandler"/> is <see langword="null"/>.
+        ///     The argument <paramref name="eventSubscriber"/> is <see langword="null"/>.
         /// </exception>
-        void RegisterEventHandler(IProfilerEventHandlerAsync eventHandler);
+        void RegisterEventSubscriber(IProfilerEventSubscriberAsync eventSubscriber);
 
         /// <summary>
-        ///     Unregister a previously registered <see cref="IProfilerEventHandler"/>, and cause it to stop receiving events.
+        ///     Unregister a previously registered <see cref="IProfilerEventSubscriber"/>, and cause it to stop receiving events.
         /// </summary>
-        /// <param name="profilerEventHandler">
+        /// <param name="profilerEventSubscriber">
         ///     The handler to stop receiving events.
         /// </param>
         /// <exception cref="ArgumentNullException">
-        ///     The argument <paramref name="profilerEventHandler"/> is <see langword="null"/>.
+        ///     The argument <paramref name="profilerEventSubscriber"/> is <see langword="null"/>.
         /// </exception>
-        void UnregisterEventHandler(IProfilerEventHandler profilerEventHandler);
+        void UnregisterEventSubscriber(IProfilerEventSubscriber profilerEventSubscriber);
 
         /// <summary>
-        ///     Unregister a previously registered <see cref="IProfilerEventHandlerAsync"/>, and cause it to stop receiving events.
+        ///     Unregister a previously registered <see cref="IProfilerEventSubscriberAsync"/>, and cause it to stop receiving events.
         /// </summary>
-        /// <param name="profilerEventHandler">
+        /// <param name="profilerEventSubscriber">
         ///     The handler to stop receiving events.
         /// </param>
         /// <exception cref="ArgumentNullException">
-        ///     The argument <paramref name="profilerEventHandler"/> is <see langword="null"/>.
+        ///     The argument <paramref name="profilerEventSubscriber"/> is <see langword="null"/>.
         /// </exception>
-        void UnregisterEventHandler(IProfilerEventHandlerAsync profilerEventHandler);
+        void UnregisterEventSubscriber(IProfilerEventSubscriberAsync profilerEventSubscriber);
     }
 }

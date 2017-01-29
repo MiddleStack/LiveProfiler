@@ -29,7 +29,7 @@ namespace MiddleStack.Profiling
         /// </value>
         public static ILiveProfiler Instance { get; } = new LiveProfiler();
 
-        IStep ILiveProfiler.Step(string category, string name, object parameters)
+        ITiming ILiveProfiler.Step(string category, string name, string displayName, object parameters)
         {
             if (String.IsNullOrWhiteSpace(category)) throw new ArgumentNullException(nameof(category));
             if (String.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
@@ -38,36 +38,57 @@ namespace MiddleStack.Profiling
 
             if (currentStep != null)
             {
-                lock (currentStep.SyncRoot)
+                var step = DoStep(category, name, displayName, parameters, currentStep);
+
+                if (step != null)
                 {
-                    if (currentStep.State == TransactionState.Inflight)
-                    {
-                        var step = new Step(this, category, name, parameters, currentStep);
-
-                        CallContextHelper.SetCurrentStep(step);
-                        RegisterEvent(new StepStartEvent(step, step.Version), step);
-
-                        return step;
-                    }
+                    return step;
                 }
             }
 
             return null;
         }
 
-        ITransaction ILiveProfiler.NewTransaction(string category, string name, object parameters, string correlationId, bool forceNew)
+        private Step DoStep(string category, string name, string displayName, object parameters, Timing currentStep)
+        {
+            Step step = null;
+
+            lock (currentStep.SyncRoot)
+            {
+                if (currentStep.State == TransactionState.Inflight)
+                {
+                    step = new Step(this, category, name, displayName, parameters, currentStep);
+
+                    CallContextHelper.SetCurrentStep(step);
+                    RegisterEvent(new StepStartEvent(step, step.Version), step);
+                }
+            }
+            return step;
+        }
+
+        ITiming ILiveProfiler.Transaction(string category, string name, string displayName, object parameters, string correlationId, TransactionMode mode)
         {
             if (String.IsNullOrWhiteSpace(category)) throw new ArgumentNullException(nameof(category));
             if (String.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
 
             var currentStep = CallContextHelper.GetCurrentStep();
 
-            if (currentStep != null && currentStep.State == TransactionState.Inflight && !forceNew)
+            if (currentStep != null && currentStep.State == TransactionState.Inflight && mode == TransactionMode.New)
             {
                 throw new InvalidOperationException($"An outstanding transaction is still inflight in the present context. The new transaction {name}, category {category}, cannot be created.");
             }
 
-            var transaction = new Transaction(this, category, name, parameters, correlationId);
+            if (currentStep != null && mode == TransactionMode.StepOrTransaction)
+            {
+                var step = DoStep(category, name, displayName, parameters, currentStep);
+
+                if (step != null)
+                {
+                    return step;
+                }
+            }
+
+            var transaction = new Transaction(this, category, name, displayName, parameters, correlationId);
 
             lock (transaction.SyncRoot)
             {
@@ -95,35 +116,35 @@ namespace MiddleStack.Profiling
             return snapshots;
         }
 
-        void ILiveProfiler.RegisterEventHandler(IProfilerEventHandler eventHandler)
+        void ILiveProfiler.RegisterEventSubscriber(IProfilerEventSubscriber eventSubscriber)
         {
-            if (eventHandler == null) throw new ArgumentNullException(nameof(eventHandler));
+            if (eventSubscriber == null) throw new ArgumentNullException(nameof(eventSubscriber));
 
-            AddEventHandler(eventHandler);
+            AddEventHandler(eventSubscriber);
         }
 
-        void ILiveProfiler.RegisterEventHandler(IProfilerEventHandlerAsync eventHandler)
+        void ILiveProfiler.RegisterEventSubscriber(IProfilerEventSubscriberAsync eventSubscriber)
         {
-            if (eventHandler == null) throw new ArgumentNullException(nameof(eventHandler));
+            if (eventSubscriber == null) throw new ArgumentNullException(nameof(eventSubscriber));
 
-            AddEventHandler(eventHandler);
+            AddEventHandler(eventSubscriber);
         }
 
-        void ILiveProfiler.UnregisterEventHandler(IProfilerEventHandler eventHandler)
+        void ILiveProfiler.UnregisterEventSubscriber(IProfilerEventSubscriber eventSubscriber)
         {
-            if (eventHandler == null) throw new ArgumentNullException(nameof(eventHandler));
+            if (eventSubscriber == null) throw new ArgumentNullException(nameof(eventSubscriber));
 
-            RemoveEventHandler(eventHandler);
+            RemoveEventHandler(eventSubscriber);
         }
 
-        void ILiveProfiler.UnregisterEventHandler(IProfilerEventHandlerAsync eventHandler)
+        void ILiveProfiler.UnregisterEventSubscriber(IProfilerEventSubscriberAsync eventSubscriber)
         {
-            if (eventHandler == null) throw new ArgumentNullException(nameof(eventHandler));
+            if (eventSubscriber == null) throw new ArgumentNullException(nameof(eventSubscriber));
 
-            RemoveEventHandler(eventHandler);
+            RemoveEventHandler(eventSubscriber);
         }
 
-        internal void RegisterEvent(IProfilerEvent stepEvent, StepBase step)
+        internal void RegisterEvent(IProfilerEvent stepEvent, Timing step)
         {
             var transaction = step as Transaction;
 
@@ -183,8 +204,8 @@ namespace MiddleStack.Profiling
         {
             await Task.Yield();
 
-            var syncHandler = handler as IProfilerEventHandler;
-            var asyncHandler = handler as IProfilerEventHandlerAsync;
+            var syncHandler = handler as IProfilerEventSubscriber;
+            var asyncHandler = handler as IProfilerEventSubscriberAsync;
 
             do
             {

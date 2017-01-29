@@ -73,12 +73,12 @@ namespace MiddleStack.Profiling.Owin.RestApi.Tests
         {
             using (var client = new HttpClient())
             {
-                IList<ITransaction> finishedTransactions = new List<ITransaction>();
+                IList<ITiming> finishedTransactions = new List<ITiming>();
 
                 for (var i = 0; i < 10; i++)
                 {
-                    ITransaction transaction;
-                    using (transaction = LiveProfiler.Instance.NewTransaction(i.ToString(), i.ToString()))
+                    ITiming transaction;
+                    using (transaction = LiveProfiler.Instance.Transaction(i.ToString(), i.ToString()))
                     {
                         using (LiveProfiler.Instance.Step(i.ToString(), i.ToString()))
                         {
@@ -88,11 +88,11 @@ namespace MiddleStack.Profiling.Owin.RestApi.Tests
                     finishedTransactions.Add(transaction);
                 }
 
-                IList<ITransaction> inflightTransactions = new List<ITransaction>();
+                IList<ITiming> inflightTransactions = new List<ITiming>();
 
                 for (var i = 0; i < 10; i++)
                 {
-                    var transaction = LiveProfiler.Instance.NewTransaction(i.ToString(), i.ToString(), forceNew: true);
+                    var transaction = LiveProfiler.Instance.Transaction(i.ToString(), i.ToString(), mode: TransactionMode.Replace);
                     LiveProfiler.Instance.Step(i.ToString(), i.ToString());
 
                     inflightTransactions.Add(transaction);
@@ -136,7 +136,7 @@ namespace MiddleStack.Profiling.Owin.RestApi.Tests
             {
                 for (var i = 0; i < 10; i++)
                 {
-                    using (LiveProfiler.Instance.NewTransaction(i.ToString(), i.ToString()))
+                    using (LiveProfiler.Instance.Transaction(i.ToString(), i.ToString()))
                     {
                         using (LiveProfiler.Instance.Step(i.ToString(), i.ToString()))
                         {
@@ -144,11 +144,11 @@ namespace MiddleStack.Profiling.Owin.RestApi.Tests
                     }
                 }
 
-                IList<ITransaction> inflightTransactions = new List<ITransaction>();
+                IList<ITiming> inflightTransactions = new List<ITiming>();
 
                 for (var i = 0; i < 10; i++)
                 {
-                    var transaction = LiveProfiler.Instance.NewTransaction(i.ToString(), i.ToString(), forceNew: true);
+                    var transaction = LiveProfiler.Instance.Transaction(i.ToString(), i.ToString(), mode: TransactionMode.Replace);
                     LiveProfiler.Instance.Step(i.ToString(), i.ToString());
 
                     inflightTransactions.Add(transaction);

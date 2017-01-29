@@ -11,14 +11,14 @@ namespace MiddleStack.Profiling
     {
         private const string CurrentStepKey = "LiveProfiler.CurrentStep";
 
-        public static void SetCurrentStep(StepBase step)
+        public static void SetCurrentStep(Timing step)
         {
             CallContext.LogicalSetData(CurrentStepKey, step);
         }
 
-        public static StepBase GetCurrentStep()
+        public static Timing GetCurrentStep()
         {
-            return CallContext.LogicalGetData(CurrentStepKey) as StepBase;
+            return CallContext.LogicalGetData(CurrentStepKey) as Timing;
         }
     }
 }

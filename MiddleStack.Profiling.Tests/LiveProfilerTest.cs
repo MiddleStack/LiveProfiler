@@ -22,21 +22,25 @@ namespace MiddleStack.Profiling.Tests
         private readonly TimeSpan _duration3 = TimeSpan.FromMilliseconds(90);
         private const string Category0 = "F31552DCD4C246B9AA59883ACD7739A5";
         private const string Name0 = "915057F4C8C4411C8F9A818A9A1ED6AB";
+        private const string DisplayName0 = "5513BBB2A4AC48F6B64FD77FA7FA2E0C";
         private const string Parameter0 = "BAD44AA98E6B4E3E8EE42901DA141FA2";
         private const string CorrelationId0 = "68917BE3A0154A17A76299E32EEDACCB";
         private const string Result0 = "BAF4FD940CAB41BC911979A67DE48E57";
         private const string Category1 = "0200937234BF41EF9E0D7F5E68D481D5";
         private const string Name1 = "A86545B4C7B94D51BE567CA00AF190D0";
+        private const string DisplayName1 = "D5B1F2F6AABB4A759A09DBC24F5C1010";
         private const string Parameter1 = "D5754E1AEA154B70A82057065B86D75D";
         private const string CorrelationId1 = "349BDEB2BAEF4E1BA169467C3992EDFC";
         private const string Result1 = "3C10A00962F04914916D4FFC2964B980";
         private const string Category2 = "A5EC6C4A674043DD84DE9BB71EC654E5";
         private const string Name2 = "FC5F289F04AE4B978BEE9C753E7221D2";
+        private const string DisplayName2 = "AE6CDE0B14554F01AF558BDEECE8368C";
         private const string Parameter2 = "0566A7BCD84C4B509E23185671EDDFFF";
         private const string CorrelationId2 = "DE7E9A3B99B84D1F9926E24EDF02A8EC";
         private const string Result2 = "29CA31DDC9D04A0294762EDDA73165B4";
         private const string Category3 = "89065DF4A71E4605B4B17345BA813928";
         private const string Name3 = "4F79F002757646798792A8A461E8BF11";
+        private const string DisplayName3 = "1A33DCADF27848AB9E68E0984A34FE47";
         private const string Parameter3 = "1188378A2EDA4807B2A9F65E886AAFA0";
         private const string CorrelationId3 = "91B968425C174D5B9BAEF775A3666A3A";
         private const string Result3 = "37F32BEA9FEE469D924A5FE5C9D39B1D";
@@ -50,11 +54,11 @@ namespace MiddleStack.Profiling.Tests
         [Test]
         public void LiveProfiler_OneSyncStep_ReturnsOneSnapshot()
         {
-            ITransaction transaction;
+            ITiming transaction;
             TransactionSnapshot unfinishedSnapshot;
 
-            using (transaction = LiveProfiler.Instance.NewTransaction(
-                    Category0, Name0, Parameter0))
+            using (transaction = LiveProfiler.Instance.Transaction(
+                    Category0, Name0, DisplayName0, Parameter0))
             {
                 Thread.Sleep(_duration0);
                 unfinishedSnapshot = transaction.GetTransactionSnapshot();
@@ -63,24 +67,24 @@ namespace MiddleStack.Profiling.Tests
             var finishedSnapshot = transaction.GetTransactionSnapshot();
 
             // verify
-            finishedSnapshot.AssertChildlessStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Success, _duration0);
-            unfinishedSnapshot.AssertChildlessStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Inflight);
+            finishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Success, _duration0);
+            unfinishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Inflight);
             CallContextHelper.GetCurrentStep().Should().BeNull();
         }
 
         [Test]
         public void LiveProfiler_CorrelationIdSpecified_ReturnsSnapshotWithCorrelationId()
         {
-            ITransaction transaction;
+            ITiming transaction;
 
-            using (transaction = LiveProfiler.Instance.NewTransaction(Category0, Name0, Parameter0, CorrelationId0))
+            using (transaction = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0, CorrelationId0))
             {
             }
 
             var finishedSnapshot = transaction.GetTransactionSnapshot();
 
             // verify
-            finishedSnapshot.AssertChildlessStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Success, TimeSpan.Zero, correlationId:CorrelationId0);
+            finishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Success, TimeSpan.Zero, correlationId:CorrelationId0);
             CallContextHelper.GetCurrentStep().Should().BeNull();
         }
 
@@ -89,12 +93,12 @@ namespace MiddleStack.Profiling.Tests
         {
             Action thrower = () =>
             {
-                using (LiveProfiler.Instance.NewTransaction(Category0, Name0, Parameter0, CorrelationId0))
+                using (LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0, CorrelationId0))
                 {
                     Thread.Sleep(_duration0);
-                    LiveProfiler.Instance.Step(Category1, Name1, Parameter1);
+                    LiveProfiler.Instance.Step(Category1, Name1, DisplayName1, Parameter1);
                     Thread.Sleep(_duration1);
-                    LiveProfiler.Instance.Step(Category2, Name2, Parameter2);
+                    LiveProfiler.Instance.Step(Category2, Name2, DisplayName2, Parameter2);
                 }
             };
 
@@ -104,8 +108,8 @@ namespace MiddleStack.Profiling.Tests
         [Test]
         public void LiveProfiler_TransactionSuccessWithResult_MarksTransactionAsSuccessWithResult()
         {
-            ITransaction transaction;
-            using (transaction = LiveProfiler.Instance.NewTransaction(Category0, Name0, Parameter0))
+            ITiming transaction;
+            using (transaction = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0))
             {
                 Thread.Sleep(_duration0);
                 transaction.Success(Result0);
@@ -114,15 +118,15 @@ namespace MiddleStack.Profiling.Tests
             var finishedSnapshot = transaction.GetTransactionSnapshot();
 
             // verify
-            finishedSnapshot.AssertChildlessStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Success, _duration0, result: Result0);
+            finishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Success, _duration0, result: Result0);
             CallContextHelper.GetCurrentStep().Should().BeNull();
         }
 
         [Test]
         public void LiveProfiler_TransactionFailureWithResult_MarksTransactionAsFailureWithResult()
         {
-            ITransaction transaction;
-            using (transaction = LiveProfiler.Instance.NewTransaction(Category0, Name0, Parameter0))
+            ITiming transaction;
+            using (transaction = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0))
             {
                 Thread.Sleep(_duration0);
                 transaction.Failure(Result0);
@@ -131,17 +135,17 @@ namespace MiddleStack.Profiling.Tests
             var finishedSnapshot = transaction.GetTransactionSnapshot();
 
             // verify
-            finishedSnapshot.AssertChildlessStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Failure, _duration0, result: Result0);
+            finishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Failure, _duration0, result: Result0);
             CallContextHelper.GetCurrentStep().Should().BeNull();
         }
 
         [Test]
         public void LiveProfiler_StepSuccessWithResult_MarksTransactionAsSuccessWithResult()
         {
-            ITransaction transaction;
-            using (transaction = LiveProfiler.Instance.NewTransaction(Category0, Name0, Parameter0))
+            ITiming transaction;
+            using (transaction = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0))
             {
-                using (var step = LiveProfiler.Instance.Step(Category1, Name1, Parameter1))
+                using (var step = LiveProfiler.Instance.Step(Category1, Name1, DisplayName1, Parameter1))
                 {
                     Thread.Sleep(_duration0);
                     step.Success(Result0);
@@ -151,10 +155,10 @@ namespace MiddleStack.Profiling.Tests
             var finishedSnapshot = transaction.GetTransactionSnapshot();
 
             // verify
-            finishedSnapshot.AssertStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Success, _duration0, 1,
+            finishedSnapshot.AssertStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Success, _duration0, 1,
                 children =>
                 {
-                    children[0].AssertChildlessStep(Category1, Name1, Parameter1, TimeSpan.Zero, TransactionState.Success, _duration0, result: Result0);
+                    children[0].AssertChildlessStep(Category1, Name1, DisplayName1, Parameter1, TimeSpan.Zero, TransactionState.Success, _duration0, result: Result0);
                 });
 
             CallContextHelper.GetCurrentStep().Should().BeNull();
@@ -163,10 +167,10 @@ namespace MiddleStack.Profiling.Tests
         [Test]
         public void LiveProfiler_StepFailureWithResult_MarksTransactionAsFailureWithResult()
         {
-            ITransaction transaction;
-            using (transaction = LiveProfiler.Instance.NewTransaction(Category0, Name0, Parameter0))
+            ITiming transaction;
+            using (transaction = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0))
             {
-                using (var step = LiveProfiler.Instance.Step(Category1, Name1, Parameter1))
+                using (var step = LiveProfiler.Instance.Step(Category1, Name1, DisplayName1, Parameter1))
                 {
                     Thread.Sleep(_duration0);
                     step.Failure(Result0);
@@ -176,10 +180,10 @@ namespace MiddleStack.Profiling.Tests
             var finishedSnapshot = transaction.GetTransactionSnapshot();
 
             // verify
-            finishedSnapshot.AssertStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Success, _duration0, 1,
+            finishedSnapshot.AssertStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Success, _duration0, 1,
                 children =>
                 {
-                    children[0].AssertChildlessStep(Category1, Name1, Parameter1, TimeSpan.Zero, TransactionState.Failure, _duration0, result: Result0);
+                    children[0].AssertChildlessStep(Category1, Name1, DisplayName1, Parameter1, TimeSpan.Zero, TransactionState.Failure, _duration0, result: Result0);
                 });
 
             CallContextHelper.GetCurrentStep().Should().BeNull();
@@ -188,14 +192,14 @@ namespace MiddleStack.Profiling.Tests
         [Test]
         public void LiveProfiler_OneAsyncSyncStep_ReturnsOneSnapshot()
         {
-            ITransaction transaction = null;
+            ITiming transaction = null;
             TransactionSnapshot unfinishedSnapshot = null;
 
             Func<Task> action = async () =>
             {
                 await Task.Yield();
 
-                using (transaction = LiveProfiler.Instance.NewTransaction(Category0, Name0, Parameter0))
+                using (transaction = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0))
                 {
                     await Task.Delay(_duration0);
                     unfinishedSnapshot = transaction.GetTransactionSnapshot();
@@ -209,15 +213,15 @@ namespace MiddleStack.Profiling.Tests
             var finishedSnapshot = transaction.GetTransactionSnapshot();
 
             // verify
-            finishedSnapshot.AssertChildlessStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Success, _duration0);
-            unfinishedSnapshot.AssertChildlessStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Inflight);
+            finishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Success, _duration0);
+            unfinishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Inflight);
             CallContextHelper.GetCurrentStep().Should().BeNull();
         }
 
         [Test]
         public void LiveProfiler_AsyncNestedSteps_ReturnsNestedSnapshots()
         {
-            ITransaction transaction = null;
+            ITiming transaction = null;
             TransactionSnapshot unfinishedSnapshot0 = null;
             TransactionSnapshot unfinishedSnapshot1 = null;
             TransactionSnapshot unfinishedSnapshot2 = null;
@@ -227,25 +231,25 @@ namespace MiddleStack.Profiling.Tests
             {
                 await Task.Yield();
 
-                using (transaction = LiveProfiler.Instance.NewTransaction(Category0, Name0, Parameter0))
+                using (transaction = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0))
                 {
                     await Task.Delay(_duration0);
                     unfinishedSnapshot0 = transaction.GetTransactionSnapshot();
 
-                    using (LiveProfiler.Instance.Step(Category1, Name1, Parameter1))
+                    using (LiveProfiler.Instance.Step(Category1, Name1, DisplayName1, Parameter1))
                     {
                         await Task.Delay(_duration1);
                         unfinishedSnapshot1 = transaction.GetTransactionSnapshot();
 
                         await Task.Yield();
-                        using (LiveProfiler.Instance.Step(Category2, Name2, Parameter2))
+                        using (LiveProfiler.Instance.Step(Category2, Name2, DisplayName2, Parameter2))
                         {
                             await Task.Delay(_duration2);
                             unfinishedSnapshot2 = transaction.GetTransactionSnapshot();
                         }
 
                         await Task.Yield();
-                        using (LiveProfiler.Instance.Step(Category3, Name3, Parameter3))
+                        using (LiveProfiler.Instance.Step(Category3, Name3, DisplayName3, Parameter3))
                         {
                             await Task.Delay(_duration3);
                             unfinishedSnapshot3 = transaction.GetTransactionSnapshot();
@@ -261,62 +265,62 @@ namespace MiddleStack.Profiling.Tests
             var finishedSnapshot = transaction.GetTransactionSnapshot();
 
             // verify
-            finishedSnapshot.AssertStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Success, 
+            finishedSnapshot.AssertStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Success, 
                 _duration0 + _duration1 + _duration2 + _duration3,
                 1,
                 c0 =>
                 {
-                    c0[0].AssertStep(Category1, Name1, Parameter1, _duration0, TransactionState.Success, 
+                    c0[0].AssertStep(Category1, Name1, DisplayName1, Parameter1, _duration0, TransactionState.Success, 
                         _duration1 + _duration2 + _duration3, 2,
                         c1 =>
                         {
                             var child2 = c1[0];
                             var child3 = c1[1];
 
-                            child2.AssertChildlessStep(Category2, Name2, Parameter2, _duration0 + _duration1, TransactionState.Success, _duration2);
-                            child3.AssertChildlessStep(Category3, Name3, Parameter3, _duration0 + _duration1 + _duration2, TransactionState.Success, _duration3);
+                            child2.AssertChildlessStep(Category2, Name2, DisplayName2, Parameter2, _duration0 + _duration1, TransactionState.Success, _duration2);
+                            child3.AssertChildlessStep(Category3, Name3, DisplayName3, Parameter3, _duration0 + _duration1 + _duration2, TransactionState.Success, _duration3);
                         });
                 });
 
-            unfinishedSnapshot0.AssertChildlessStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Inflight);
+            unfinishedSnapshot0.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Inflight);
 
-            unfinishedSnapshot1.AssertStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
+            unfinishedSnapshot1.AssertStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
                 null,
                 1,
                 c0 =>
                 {
-                    c0[0].AssertChildlessStep(Category1, Name1, Parameter1, _duration0, TransactionState.Inflight);
+                    c0[0].AssertChildlessStep(Category1, Name1, DisplayName1, Parameter1, _duration0, TransactionState.Inflight);
                 });
 
-            unfinishedSnapshot2.AssertStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
+            unfinishedSnapshot2.AssertStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
                 null,
                 1,
                 c0 =>
                 {
-                    c0[0].AssertStep(Category1, Name1, Parameter1, _duration0, TransactionState.Inflight,
+                    c0[0].AssertStep(Category1, Name1, DisplayName1, Parameter1, _duration0, TransactionState.Inflight,
                         null, 1,
                         c1 =>
                         {
                             var child2 = c1[0];
 
-                            child2.AssertChildlessStep(Category2, Name2, Parameter2, _duration0 + _duration1, TransactionState.Inflight);
+                            child2.AssertChildlessStep(Category2, Name2, DisplayName2, Parameter2, _duration0 + _duration1, TransactionState.Inflight);
                         });
                 });
 
-            unfinishedSnapshot3.AssertStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
+            unfinishedSnapshot3.AssertStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
                 null,
                 1,
                 c0 =>
                 {
-                    c0[0].AssertStep(Category1, Name1, Parameter1, _duration0, TransactionState.Inflight,
+                    c0[0].AssertStep(Category1, Name1, DisplayName1, Parameter1, _duration0, TransactionState.Inflight,
                         null, 2,
                         c1 =>
                         {
                             var child2 = c1[0];
                             var child3 = c1[1];
 
-                            child2.AssertChildlessStep(Category2, Name2, Parameter2, _duration0 + _duration1, TransactionState.Success, _duration2);
-                            child3.AssertChildlessStep(Category3, Name3, Parameter3, _duration0 + _duration1 + _duration2, TransactionState.Inflight);
+                            child2.AssertChildlessStep(Category2, Name2, DisplayName2, Parameter2, _duration0 + _duration1, TransactionState.Success, _duration2);
+                            child3.AssertChildlessStep(Category3, Name3, DisplayName3, Parameter3, _duration0 + _duration1 + _duration2, TransactionState.Inflight);
                         });
                 });
 
@@ -326,29 +330,29 @@ namespace MiddleStack.Profiling.Tests
         [Test]
         public void LiveProfiler_SyncNestedSteps_ReturnsNestedSnapshots()
         {
-            ITransaction transaction = null;
+            ITiming transaction = null;
             TransactionSnapshot unfinishedSnapshot0 = null;
             TransactionSnapshot unfinishedSnapshot1 = null;
             TransactionSnapshot unfinishedSnapshot2 = null;
             TransactionSnapshot unfinishedSnapshot3 = null;
 
-            using (transaction = LiveProfiler.Instance.NewTransaction(Category0, Name0, Parameter0))
+            using (transaction = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0))
             {
                 Thread.Sleep(_duration0);
                 unfinishedSnapshot0 = transaction.GetTransactionSnapshot();
 
-                using (LiveProfiler.Instance.Step(Category1, Name1, Parameter1))
+                using (LiveProfiler.Instance.Step(Category1, Name1, DisplayName1, Parameter1))
                 {
                     Thread.Sleep(_duration1);
                     unfinishedSnapshot1 = transaction.GetTransactionSnapshot();
 
-                    using (LiveProfiler.Instance.Step(Category2, Name2, Parameter2))
+                    using (LiveProfiler.Instance.Step(Category2, Name2, DisplayName2, Parameter2))
                     {
                         Thread.Sleep(_duration2);
                         unfinishedSnapshot2 = transaction.GetTransactionSnapshot();
                     }
 
-                    using (LiveProfiler.Instance.Step(Category3, Name3, Parameter3))
+                    using (LiveProfiler.Instance.Step(Category3, Name3, DisplayName3, Parameter3))
                     {
                         Thread.Sleep(_duration3);
                         unfinishedSnapshot3 = transaction.GetTransactionSnapshot();
@@ -359,62 +363,62 @@ namespace MiddleStack.Profiling.Tests
             var finishedSnapshot = transaction.GetTransactionSnapshot();
 
             // verify
-            finishedSnapshot.AssertStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Success,
+            finishedSnapshot.AssertStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Success,
                 _duration0 + _duration1 + _duration2 + _duration3,
                 1,
                 c0 =>
                 {
-                    c0[0].AssertStep(Category1, Name1, Parameter1, _duration0, TransactionState.Success,
+                    c0[0].AssertStep(Category1, Name1, DisplayName1, Parameter1, _duration0, TransactionState.Success,
                         _duration1 + _duration2 + _duration3, 2,
                         c1 =>
                         {
                             var child2 = c1[0];
                             var child3 = c1[1];
 
-                            child2.AssertChildlessStep(Category2, Name2, Parameter2, _duration0 + _duration1, TransactionState.Success, _duration2);
-                            child3.AssertChildlessStep(Category3, Name3, Parameter3, _duration0 + _duration1 + _duration2, TransactionState.Success, _duration3);
+                            child2.AssertChildlessStep(Category2, Name2, DisplayName2, Parameter2, _duration0 + _duration1, TransactionState.Success, _duration2);
+                            child3.AssertChildlessStep(Category3, Name3, DisplayName3, Parameter3, _duration0 + _duration1 + _duration2, TransactionState.Success, _duration3);
                         });
                 });
 
-            unfinishedSnapshot0.AssertChildlessStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Inflight);
+            unfinishedSnapshot0.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Inflight);
 
-            unfinishedSnapshot1.AssertStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
+            unfinishedSnapshot1.AssertStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
                 null,
                 1,
                 c0 =>
                 {
-                    c0[0].AssertChildlessStep(Category1, Name1, Parameter1, _duration0, TransactionState.Inflight);
+                    c0[0].AssertChildlessStep(Category1, Name1, DisplayName1, Parameter1, _duration0, TransactionState.Inflight);
                 });
 
-            unfinishedSnapshot2.AssertStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
+            unfinishedSnapshot2.AssertStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
                 null,
                 1,
                 c0 =>
                 {
-                    c0[0].AssertStep(Category1, Name1, Parameter1, _duration0, TransactionState.Inflight,
+                    c0[0].AssertStep(Category1, Name1, DisplayName1, Parameter1, _duration0, TransactionState.Inflight,
                         null, 1,
                         c1 =>
                         {
                             var child2 = c1[0];
 
-                            child2.AssertChildlessStep(Category2, Name2, Parameter2, _duration0 + _duration1, TransactionState.Inflight);
+                            child2.AssertChildlessStep(Category2, Name2, DisplayName2, Parameter2, _duration0 + _duration1, TransactionState.Inflight);
                         });
                 });
 
-            unfinishedSnapshot3.AssertStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
+            unfinishedSnapshot3.AssertStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
                 null,
                 1,
                 c0 =>
                 {
-                    c0[0].AssertStep(Category1, Name1, Parameter1, _duration0, TransactionState.Inflight,
+                    c0[0].AssertStep(Category1, Name1, DisplayName1, Parameter1, _duration0, TransactionState.Inflight,
                         null, 2,
                         c1 =>
                         {
                             var child2 = c1[0];
                             var child3 = c1[1];
 
-                            child2.AssertChildlessStep(Category2, Name2, Parameter2, _duration0 + _duration1, TransactionState.Success, _duration2);
-                            child3.AssertChildlessStep(Category3, Name3, Parameter3, _duration0 + _duration1 + _duration2, TransactionState.Inflight);
+                            child2.AssertChildlessStep(Category2, Name2, DisplayName2, Parameter2, _duration0 + _duration1, TransactionState.Success, _duration2);
+                            child3.AssertChildlessStep(Category3, Name3, DisplayName3, Parameter3, _duration0 + _duration1 + _duration2, TransactionState.Inflight);
                         });
                 });
 
@@ -424,7 +428,7 @@ namespace MiddleStack.Profiling.Tests
         [Test]
         public void LiveProfiler_AsyncParallelNestedSteps_ReturnsNestedSnapshots()
         {
-            ITransaction transaction = null;
+            ITiming transaction = null;
             TransactionSnapshot unfinishedSnapshot0 = null;
             TransactionSnapshot unfinishedSnapshot1 = null;
             TransactionSnapshot unfinishedSnapshot2 = null;
@@ -433,12 +437,12 @@ namespace MiddleStack.Profiling.Tests
             {
                 await Task.Yield();
 
-                using (transaction = LiveProfiler.Instance.NewTransaction(Category0, Name0, Parameter0))
+                using (transaction = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0))
                 {
                     await Task.Delay(_duration0);
                     unfinishedSnapshot0 = transaction.GetTransactionSnapshot();
 
-                    using (LiveProfiler.Instance.Step(Category1, Name1, Parameter1))
+                    using (LiveProfiler.Instance.Step(Category1, Name1, DisplayName1, Parameter1))
                     {
                         await Task.Delay(_duration1);
                         unfinishedSnapshot1 = transaction.GetTransactionSnapshot();
@@ -446,7 +450,7 @@ namespace MiddleStack.Profiling.Tests
                         Func<Task> parallel0 = async () =>
                         {
                             await Task.Yield();
-                            using (LiveProfiler.Instance.Step(Category2, Name2, Parameter2))
+                            using (LiveProfiler.Instance.Step(Category2, Name2, DisplayName2, Parameter2))
                             {
                                 await Task.Delay(_duration2);
                             }
@@ -455,7 +459,7 @@ namespace MiddleStack.Profiling.Tests
                         Func<Task> parallel1 = async () =>
                         {
                             await Task.Yield();
-                            using (LiveProfiler.Instance.Step(Category3, Name3, Parameter3))
+                            using (LiveProfiler.Instance.Step(Category3, Name3, DisplayName3, Parameter3))
                             {
                                 await Task.Delay(_duration3);
                             }
@@ -475,47 +479,47 @@ namespace MiddleStack.Profiling.Tests
             var finishedSnapshot = transaction.GetTransactionSnapshot();
 
             // verify
-            finishedSnapshot.AssertStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Success, 
+            finishedSnapshot.AssertStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Success, 
                 _duration0 + _duration1 + _duration2,
                 1,
                 c0 =>
                 {
-                    c0[0].AssertStep(Category1, Name1, Parameter1, _duration0, TransactionState.Success, 
+                    c0[0].AssertStep(Category1, Name1, DisplayName1, Parameter1, _duration0, TransactionState.Success, 
                         _duration1 + _duration2, 2,
                         c1 =>
                         {
                             var child2 = c1.First(c => c.Name == Name2);
                             var child3 = c1.First(c => c.Name == Name3);
 
-                            child2.AssertChildlessStep(Category2, Name2, Parameter2, _duration0 + _duration1, TransactionState.Success, _duration2);
-                            child3.AssertChildlessStep(Category3, Name3, Parameter3, _duration0 + _duration1, TransactionState.Success, _duration3);
+                            child2.AssertChildlessStep(Category2, Name2, DisplayName2, Parameter2, _duration0 + _duration1, TransactionState.Success, _duration2);
+                            child3.AssertChildlessStep(Category3, Name3, DisplayName3, Parameter3, _duration0 + _duration1, TransactionState.Success, _duration3);
                         });
                 });
 
-            unfinishedSnapshot0.AssertChildlessStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Inflight);
+            unfinishedSnapshot0.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Inflight);
 
-            unfinishedSnapshot1.AssertStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
+            unfinishedSnapshot1.AssertStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
                 null,
                 1,
                 c0 =>
                 {
-                    c0[0].AssertChildlessStep(Category1, Name1, Parameter1, _duration0, TransactionState.Inflight);
+                    c0[0].AssertChildlessStep(Category1, Name1, DisplayName1, Parameter1, _duration0, TransactionState.Inflight);
                 });
 
-            unfinishedSnapshot2.AssertStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
+            unfinishedSnapshot2.AssertStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
                 null,
                 1,
                 c0 =>
                 {
-                    c0[0].AssertStep(Category1, Name1, Parameter1, _duration0, TransactionState.Success,
+                    c0[0].AssertStep(Category1, Name1, DisplayName1, Parameter1, _duration0, TransactionState.Success,
                         _duration1 + _duration2, 2,
                         c1 =>
                         {
                             var child2 = c1.First(c => c.Name == Name2);
                             var child3 = c1.First(c => c.Name == Name3);
 
-                            child2.AssertChildlessStep(Category2, Name2, Parameter2, _duration0 + _duration1, TransactionState.Success, _duration2);
-                            child3.AssertChildlessStep(Category3, Name3, Parameter3, _duration0 + _duration1, TransactionState.Success, _duration3);
+                            child2.AssertChildlessStep(Category2, Name2, DisplayName2, Parameter2, _duration0 + _duration1, TransactionState.Success, _duration2);
+                            child3.AssertChildlessStep(Category3, Name3, DisplayName3, Parameter3, _duration0 + _duration1, TransactionState.Success, _duration3);
                         });
                 });
 
@@ -525,7 +529,7 @@ namespace MiddleStack.Profiling.Tests
         [Test]
         public void LiveProfiler_AsyncParallelNestedStepsWithNoSyncContext_ReturnsNestedSnapshots()
         {
-            ITransaction transaction = null;
+            ITiming transaction = null;
             TransactionSnapshot unfinishedSnapshot0 = null;
             TransactionSnapshot unfinishedSnapshot1 = null;
             TransactionSnapshot unfinishedSnapshot2 = null;
@@ -534,13 +538,13 @@ namespace MiddleStack.Profiling.Tests
             {
                 await Task.Yield();
 
-                using (transaction = LiveProfiler.Instance.NewTransaction(
-                        Category0, Name0, Parameter0))
+                using (transaction = LiveProfiler.Instance.Transaction(
+                        Category0, Name0, DisplayName0, Parameter0))
                 {
                     await Task.Delay(_duration0).ConfigureAwait(false);
                     unfinishedSnapshot0 = transaction.GetTransactionSnapshot();
 
-                    using (LiveProfiler.Instance.Step(Category1, Name1, Parameter1))
+                    using (LiveProfiler.Instance.Step(Category1, Name1, DisplayName1, Parameter1))
                     {
                         await Task.Delay(_duration1).ConfigureAwait(false);
                         unfinishedSnapshot1 = transaction.GetTransactionSnapshot();
@@ -548,7 +552,7 @@ namespace MiddleStack.Profiling.Tests
                         Func<Task> parallel0 = async () =>
                         {
                             await Task.Yield();
-                            using (LiveProfiler.Instance.Step(Category2, Name2, Parameter2))
+                            using (LiveProfiler.Instance.Step(Category2, Name2, DisplayName2, Parameter2))
                             {
                                 await Task.Delay(_duration2).ConfigureAwait(false);
                             }
@@ -557,7 +561,7 @@ namespace MiddleStack.Profiling.Tests
                         Func<Task> parallel1 = async () =>
                         {
                             await Task.Yield();
-                            using (LiveProfiler.Instance.Step(Category3, Name3, Parameter3))
+                            using (LiveProfiler.Instance.Step(Category3, Name3, DisplayName3, Parameter3))
                             {
                                 await Task.Delay(_duration3).ConfigureAwait(false);
                             }
@@ -577,47 +581,47 @@ namespace MiddleStack.Profiling.Tests
             var finishedSnapshot = transaction.GetTransactionSnapshot();
 
             // verify
-            finishedSnapshot.AssertStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Success, 
+            finishedSnapshot.AssertStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Success, 
                 _duration0 + _duration1 + _duration2,
                 1,
                 c0 =>
                 {
-                    c0[0].AssertStep(Category1, Name1, Parameter1, _duration0, TransactionState.Success, 
+                    c0[0].AssertStep(Category1, Name1, DisplayName1, Parameter1, _duration0, TransactionState.Success, 
                         _duration1 + _duration2, 2,
                         c1 =>
                         {
                             var child2 = c1.First(c => c.Name == Name2);
                             var child3 = c1.First(c => c.Name == Name3);
 
-                            child2.AssertChildlessStep(Category2, Name2, Parameter2, _duration0 + _duration1, TransactionState.Success, _duration2);
-                            child3.AssertChildlessStep(Category3, Name3, Parameter3, _duration0 + _duration1, TransactionState.Success, _duration3);
+                            child2.AssertChildlessStep(Category2, Name2, DisplayName2, Parameter2, _duration0 + _duration1, TransactionState.Success, _duration2);
+                            child3.AssertChildlessStep(Category3, Name3, DisplayName3, Parameter3, _duration0 + _duration1, TransactionState.Success, _duration3);
                         });
                 });
 
-            unfinishedSnapshot0.AssertChildlessStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Inflight);
+            unfinishedSnapshot0.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Inflight);
 
-            unfinishedSnapshot1.AssertStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
+            unfinishedSnapshot1.AssertStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
                 null,
                 1,
                 c0 =>
                 {
-                    c0[0].AssertChildlessStep(Category1, Name1, Parameter1, _duration0, TransactionState.Inflight);
+                    c0[0].AssertChildlessStep(Category1, Name1, DisplayName1, Parameter1, _duration0, TransactionState.Inflight);
                 });
 
-            unfinishedSnapshot2.AssertStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
+            unfinishedSnapshot2.AssertStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Inflight,
                 null,
                 1,
                 c0 =>
                 {
-                    c0[0].AssertStep(Category1, Name1, Parameter1, _duration0, TransactionState.Success,
+                    c0[0].AssertStep(Category1, Name1, DisplayName1, Parameter1, _duration0, TransactionState.Success,
                         _duration1 + _duration2, 2,
                         c1 =>
                         {
                             var child2 = c1.First(c => c.Name == Name2);
                             var child3 = c1.First(c => c.Name == Name3);
 
-                            child2.AssertChildlessStep(Category2, Name2, Parameter2, _duration0 + _duration1, TransactionState.Success, _duration2);
-                            child3.AssertChildlessStep(Category3, Name3, Parameter3, _duration0 + _duration1, TransactionState.Success, _duration3);
+                            child2.AssertChildlessStep(Category2, Name2, DisplayName2, Parameter2, _duration0 + _duration1, TransactionState.Success, _duration2);
+                            child3.AssertChildlessStep(Category3, Name3, DisplayName3, Parameter3, _duration0 + _duration1, TransactionState.Success, _duration3);
                         });
                 });
 
@@ -663,23 +667,23 @@ namespace MiddleStack.Profiling.Tests
         [Test]
         public void LiveProfiler_Step_NoTemplate_ResultsInTransactionWithoutTemplate()
         {
-            ITransaction transaction;
+            ITiming transaction;
 
-            using (transaction = LiveProfiler.Instance.NewTransaction(Category0, Name0))
+            using (transaction = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0))
             {
             }
 
             var finishedSnapshot = transaction.GetTransactionSnapshot();
 
             // verify
-            finishedSnapshot.AssertChildlessStep(Category0, Name0, null, TimeSpan.Zero, TransactionState.Success, TimeSpan.Zero);
+            finishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, null, TimeSpan.Zero, TransactionState.Success, TimeSpan.Zero);
             CallContextHelper.GetCurrentStep().Should().BeNull();
         }
 
         [Test]
         public void LiveProfiler_Transaction_NullCategory_ThrowsArgumentNullException()
         {
-            Action thrower = () => LiveProfiler.Instance.NewTransaction(null, Name0, Parameter0);
+            Action thrower = () => LiveProfiler.Instance.Transaction(null, Name0, Parameter0);
 
             thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("category");
             CallContextHelper.GetCurrentStep().Should().BeNull();
@@ -688,7 +692,7 @@ namespace MiddleStack.Profiling.Tests
         [Test]
         public void LiveProfiler_Transaction_EmptyCategory_ThrowsArgumentNullException()
         {
-            Action thrower = () => LiveProfiler.Instance.NewTransaction("    ", Name0, Parameter0);
+            Action thrower = () => LiveProfiler.Instance.Transaction("    ", Name0, Parameter0);
 
             thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("category");
             CallContextHelper.GetCurrentStep().Should().BeNull();
@@ -697,7 +701,7 @@ namespace MiddleStack.Profiling.Tests
         [Test]
         public void LiveProfiler_Transaction_NullName_ThrowsArgumentNullException()
         {
-            Action thrower = () => LiveProfiler.Instance.NewTransaction(Category0, null, Parameter0);
+            Action thrower = () => LiveProfiler.Instance.Transaction(Category0, null, Parameter0);
 
             thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("name");
             CallContextHelper.GetCurrentStep().Should().BeNull();
@@ -706,7 +710,7 @@ namespace MiddleStack.Profiling.Tests
         [Test]
         public void LiveProfiler_Transaction_EmptyName_ThrowsArgumentNullException()
         {
-            Action thrower = () => LiveProfiler.Instance.NewTransaction(Category0, "    ", Parameter0);
+            Action thrower = () => LiveProfiler.Instance.Transaction(Category0, "    ", Parameter0);
 
             thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("name");
             CallContextHelper.GetCurrentStep().Should().BeNull();
@@ -715,27 +719,27 @@ namespace MiddleStack.Profiling.Tests
         [Test]
         public void LiveProfiler_Transaction_NoTemplate_ResultsInTransactionWithoutTemplate()
         {
-            ITransaction transaction;
+            ITiming transaction;
 
-            using (transaction = LiveProfiler.Instance.NewTransaction(Category0, Name0))
+            using (transaction = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0))
             {
             }
 
             var finishedSnapshot = transaction.GetTransactionSnapshot();
 
             // verify
-            finishedSnapshot.AssertChildlessStep(Category0, Name0, null, TimeSpan.Zero, TransactionState.Success, TimeSpan.Zero);
+            finishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, null, TimeSpan.Zero, TransactionState.Success, TimeSpan.Zero);
             CallContextHelper.GetCurrentStep().Should().BeNull();
         }
 
         [Test]
         public void LiveProfiler_Transaction_TransactionAlreadyInflightAndForceNewIsFalse_Throws()
         {
-            using (var transaction = LiveProfiler.Instance.NewTransaction(Category0, Name0))
+            using (var transaction = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0))
             {
                 CallContextHelper.GetCurrentStep().Should().BeSameAs(transaction);
 
-                Action thrower = () => LiveProfiler.Instance.NewTransaction(Category1, Name1);
+                Action thrower = () => LiveProfiler.Instance.Transaction(Category1, Name1, DisplayName1);
                 thrower.ShouldThrow<InvalidOperationException>();
 
                 CallContextHelper.GetCurrentStep().Should().BeSameAs(transaction);
@@ -743,35 +747,35 @@ namespace MiddleStack.Profiling.Tests
         }
 
         [Test]
-        public void LiveProfiler_RegisterEventHandler_NullEventHandler_Throws()
+        public void LiveProfiler_RegisterEventSubscriber_NullEventSubscriber_Throws()
         {
-            Action thrower = () => LiveProfiler.Instance.RegisterEventHandler((IProfilerEventHandler)null);
+            Action thrower = () => LiveProfiler.Instance.RegisterEventSubscriber((IProfilerEventSubscriber)null);
 
-            thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("eventHandler");
+            thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("eventSubscriber");
         }
 
         [Test]
-        public void LiveProfiler_RegisterEventHandler_NullAsyncEventHandler_Throws()
+        public void LiveProfiler_RegisterEventSubscriber_NullAsyncEventSubscriber_Throws()
         {
-            Action thrower = () => LiveProfiler.Instance.RegisterEventHandler((IProfilerEventHandlerAsync)null);
+            Action thrower = () => LiveProfiler.Instance.RegisterEventSubscriber((IProfilerEventSubscriberAsync)null);
 
-            thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("eventHandler");
+            thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("eventSubscriber");
         }
 
         [Test]
-        public void LiveProfiler_UnregisterEventHandler_NullEventHandler_Throws()
+        public void LiveProfiler_UnregisterEventSubscriber_NullEventSubscriber_Throws()
         {
-            Action thrower = () => LiveProfiler.Instance.UnregisterEventHandler((IProfilerEventHandler)null);
+            Action thrower = () => LiveProfiler.Instance.UnregisterEventSubscriber((IProfilerEventSubscriber)null);
 
-            thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("eventHandler");
+            thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("eventSubscriber");
         }
 
         [Test]
-        public void LiveProfiler_UnregisterEventHandler_NullAsyncEventHandler_Throws()
+        public void LiveProfiler_UnregisterEventSubscriber_NullAsyncEventSubscriber_Throws()
         {
-            Action thrower = () => LiveProfiler.Instance.UnregisterEventHandler((IProfilerEventHandlerAsync)null);
+            Action thrower = () => LiveProfiler.Instance.UnregisterEventSubscriber((IProfilerEventSubscriberAsync)null);
 
-            thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("eventHandler");
+            thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("eventSubscriber");
         }
 
         [Test]
@@ -793,9 +797,9 @@ namespace MiddleStack.Profiling.Tests
                     Func<Task> action = async () =>
                     {
                         await Task.Yield();
-                        ITransaction transaction;
+                        ITiming transaction;
 
-                        using (transaction = LiveProfiler.Instance.NewTransaction(iStr, iStr, iStr))
+                        using (transaction = LiveProfiler.Instance.Transaction(iStr, iStr, iStr))
                         {
                             await Task.Delay(10);
 
@@ -831,9 +835,9 @@ namespace MiddleStack.Profiling.Tests
                     {
                         try
                         {
-                            ITransaction transaction;
+                            ITiming transaction;
 
-                            using (transaction = LiveProfiler.Instance.NewTransaction(iStr, iStr, iStr))
+                            using (transaction = LiveProfiler.Instance.Transaction(iStr, iStr, iStr))
                             {
                                 Thread.Sleep(10);
 
@@ -893,17 +897,17 @@ namespace MiddleStack.Profiling.Tests
         }
 
         [Test]
-        public void LiveProfiler_ForceNewTransaction_ReplacesExistingTransaction()
+        public void LiveProfiler_Transaction_TransactionAlreadyInFlightAndModeIsReplace_ReplacesExistingTransaction()
         {
-            ITransaction transaction0, transaction1;
+            ITiming transaction0, transaction1;
 
-            using (transaction0 = LiveProfiler.Instance.NewTransaction(Category0, Name0, Parameter0))
+            using (transaction0 = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0))
             {
                 Thread.Sleep(_duration0);
-                using (transaction1 = LiveProfiler.Instance.NewTransaction(Category1, Name1, Parameter1, forceNew: true))
+                using (transaction1 = LiveProfiler.Instance.Transaction(Category1, Name1, DisplayName1, Parameter1, mode: TransactionMode.Replace))
                 {
                     Thread.Sleep(_duration1);
-                    using (LiveProfiler.Instance.Step(Category2, Name2, Parameter2))
+                    using (LiveProfiler.Instance.Step(Category2, Name2, DisplayName2, Parameter2))
                     {
                         Thread.Sleep(_duration2);
                     }
@@ -914,37 +918,139 @@ namespace MiddleStack.Profiling.Tests
             var finishedSnapshot1 = transaction1.GetTransactionSnapshot();
 
             // verify
-            finishedSnapshot0.AssertChildlessStep(Category0, Name0, Parameter0, TimeSpan.Zero, TransactionState.Success, _duration0 + _duration1 + _duration2);
-            finishedSnapshot1.AssertStep(Category1, Name1, Parameter1, TimeSpan.Zero, TransactionState.Success, _duration1 + _duration2, 1,
+            finishedSnapshot0.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Success, _duration0 + _duration1 + _duration2);
+            finishedSnapshot1.AssertStep(Category1, Name1, DisplayName1, Parameter1, TimeSpan.Zero, TransactionState.Success, _duration1 + _duration2, 1,
                 c =>
                 {
-                    c[0].AssertChildlessStep(Category2, Name2, Parameter2, _duration1, TransactionState.Success, _duration2);
+                    c[0].AssertChildlessStep(Category2, Name2, DisplayName2, Parameter2, _duration1, TransactionState.Success, _duration2);
                 });
 
             CallContextHelper.GetCurrentStep().Should().BeNull();
         }
 
         [Test]
-        public void LiveProfiler_EventHandlersSpecified_RapidEventsInSingleTransaction_AllHandlersReceiveEventsInCorrectOrder()
+        public void LiveProfiler_Transaction_TransactionNotInFlightAndModeIsReplace_CreatesNewTransaction()
+        {
+            ITiming transaction0, transaction1;
+
+            using (transaction0 = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0))
+            {
+                Thread.Sleep(_duration0);
+                transaction0.Dispose();
+                using (transaction1 = LiveProfiler.Instance.Transaction(Category1, Name1, DisplayName1, Parameter1, mode: TransactionMode.Replace))
+                {
+                    Thread.Sleep(_duration1);
+                    using (LiveProfiler.Instance.Step(Category2, Name2, DisplayName2, Parameter2))
+                    {
+                        Thread.Sleep(_duration2);
+                    }
+                }
+            }
+
+            var finishedSnapshot0 = transaction0.GetTransactionSnapshot();
+            var finishedSnapshot1 = transaction1.GetTransactionSnapshot();
+
+            // verify
+            finishedSnapshot0.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Success, _duration0);
+            finishedSnapshot1.AssertStep(Category1, Name1, DisplayName1, Parameter1, TimeSpan.Zero, TransactionState.Success, _duration1 + _duration2, 1,
+                c =>
+                {
+                    c[0].AssertChildlessStep(Category2, Name2, DisplayName2, Parameter2, _duration1, TransactionState.Success, _duration2);
+                });
+
+            CallContextHelper.GetCurrentStep().Should().BeNull();
+        }
+
+        [Test]
+        public void LiveProfiler_Transaction_TransactionAlreadyInFlightAndModeIsStepOrTransaction_ReplacesExistingTransaction()
+        {
+            ITiming transaction0, transaction1;
+
+            using (transaction0 = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0))
+            {
+                using (transaction1 = LiveProfiler.Instance.Transaction(Category1, Name1, DisplayName1, Parameter1, mode: TransactionMode.StepOrTransaction))
+                {
+                    Thread.Sleep(_duration0);
+                    using (LiveProfiler.Instance.Step(Category2, Name2, DisplayName2, Parameter2))
+                    {
+                        Thread.Sleep(_duration1);
+                    }
+                }
+            }
+
+            var finishedSnapshot0 = transaction0.GetTransactionSnapshot();
+            var finishedSnapshot1 = transaction1.GetTransactionSnapshot();
+
+            // verify
+            finishedSnapshot0.AssertStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Success, _duration0 + _duration1, 1,
+                c0 =>
+                {
+                    c0[0].AssertStep(Category1, Name1, DisplayName1, Parameter1, TimeSpan.Zero, TransactionState.Success, _duration0 + _duration1, 1,
+                        c1 =>
+                        {
+                            c1[0].AssertChildlessStep(Category2, Name2, DisplayName2, Parameter2, _duration0,
+                                TransactionState.Success, _duration1);
+                        });
+                });
+
+            finishedSnapshot0.ShouldBeEquivalentTo(finishedSnapshot1);
+
+            CallContextHelper.GetCurrentStep().Should().BeNull();
+        }
+
+        [Test]
+        public void LiveProfiler_Transaction_TransactionNotInFlightAndModeIsStepOrTransaction_CreatesNewTransaction()
+        {
+            ITiming transaction0, transaction1;
+
+            using (transaction0 = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0))
+            {
+                transaction0.Success();
+                using (transaction1 = LiveProfiler.Instance.Transaction(Category1, Name1, DisplayName1, Parameter1, mode: TransactionMode.StepOrTransaction))
+                {
+                    Thread.Sleep(_duration0);
+                    using (LiveProfiler.Instance.Step(Category2, Name2, DisplayName2, Parameter2))
+                    {
+                        Thread.Sleep(_duration1);
+                    }
+                }
+            }
+
+            var finishedSnapshot0 = transaction0.GetTransactionSnapshot();
+            var finishedSnapshot1 = transaction1.GetTransactionSnapshot();
+
+            // verify
+            finishedSnapshot0.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Success, TimeSpan.Zero);
+            finishedSnapshot1.AssertStep(Category1, Name1, DisplayName1, Parameter1, TimeSpan.Zero, TransactionState.Success, _duration0 + _duration1, 1,
+                c =>
+                {
+                    c[0].AssertChildlessStep(Category2, Name2, DisplayName2, Parameter2, _duration0, TransactionState.Success, _duration1);
+                });
+
+            CallContextHelper.GetCurrentStep().Should().BeNull();
+        }
+
+        [Test]
+        public void LiveProfiler_EventSubscribersSpecified_RapidEventsInSingleTransaction_AllSubscribersReceiveEventsInCorrectOrder()
         {
             // arrange
             const int stepCount = 100;
             var syncCompletionSource = new TaskCompletionSource<bool>();
             var asyncCompletionSource = new TaskCompletionSource<bool>();
-            var syncHandler = new Mock<IProfilerEventHandler>();
-            var asyncHandler = new Mock<IProfilerEventHandlerAsync>();
+            var syncSubscriber = new Mock<IProfilerEventSubscriber>();
+            var asyncSubscriber = new Mock<IProfilerEventSubscriberAsync>();
 
             var syncEvents = new List<IProfilerEvent>();
             var asyncEvents = new List<IProfilerEvent>();
 
-            syncHandler.Setup(h => h.HandleEvent(It.IsAny<IProfilerEvent>()))
+            syncSubscriber.Setup(h => h.HandleEvent(It.IsAny<IProfilerEvent>()))
                 .Callback<IProfilerEvent>(evt =>
                 {
                     lock (syncEvents) syncEvents.Add(evt);
                     if (evt is ITransactionFinishEvent) syncCompletionSource.SetResult(true);
                 });
 
-            asyncHandler.Setup(h => h.HandleEventAsync(It.IsAny<IProfilerEvent>()))
+            asyncSubscriber.Setup(h => h.HandleEventAsync(It.IsAny<IProfilerEvent>()))
                 .Returns<IProfilerEvent>(evt =>
                 {
                     lock (asyncEvents) asyncEvents.Add(evt);
@@ -955,15 +1061,15 @@ namespace MiddleStack.Profiling.Tests
             // execute
             try
             {
-                LiveProfiler.Instance.RegisterEventHandler(syncHandler.Object);
-                LiveProfiler.Instance.RegisterEventHandler(asyncHandler.Object);
+                LiveProfiler.Instance.RegisterEventSubscriber(syncSubscriber.Object);
+                LiveProfiler.Instance.RegisterEventSubscriber(asyncSubscriber.Object);
 
-                using (var transaction = LiveProfiler.Instance.NewTransaction(Category0, Name0, Parameter0, CorrelationId0))
+                using (var transaction = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0, CorrelationId0))
                 {
                     for (var i = 0; i < stepCount; i++)
                     {
                         var str = i.ToString();
-                        using (var step = LiveProfiler.Instance.Step(str, str, str))
+                        using (var step = LiveProfiler.Instance.Step(str, str, str, str))
                         {
                             Thread.Sleep(10);
                             step.Failure(str);
@@ -983,6 +1089,7 @@ namespace MiddleStack.Profiling.Tests
 
                 transactionStartEvent.Name.Should().Be(Name0);
                 transactionStartEvent.Category.Should().Be(Category0);
+                transactionStartEvent.DisplayName.Should().Be(DisplayName0);
                 transactionStartEvent.Parameters.Should().Be(Parameter0);
                 transactionStartEvent.Id.Should().NotBeEmpty();
                 transactionStartEvent.Start.Should().BeCloseTo(DateTimeOffset.Now, 5000);
@@ -1002,6 +1109,7 @@ namespace MiddleStack.Profiling.Tests
                     var name = (i/2).ToString();
 
                     startEvent.Name.Should().Be(name);
+                    startEvent.DisplayName.Should().Be(name);
                     startEvent.Category.Should().Be(name);
                     startEvent.Parameters.Should().Be(name);
                     startEvent.Id.Should().NotBeEmpty();
@@ -1011,6 +1119,7 @@ namespace MiddleStack.Profiling.Tests
                     startEvent.GetTransactionSnapshot().Should().NotBeNull();
 
                     finishEvent.Name.Should().Be(name);
+                    finishEvent.DisplayName.Should().Be(name);
                     finishEvent.Category.Should().Be(name);
                     finishEvent.Parameters.Should().Be(name);
                     finishEvent.Result.Should().Be(name);
@@ -1025,6 +1134,7 @@ namespace MiddleStack.Profiling.Tests
                 transactionFinishEvent.Should().NotBeNull();
 
                 transactionFinishEvent.Name.Should().Be(Name0);
+                transactionFinishEvent.DisplayName.Should().Be(DisplayName0);
                 transactionFinishEvent.Category.Should().Be(Category0);
                 transactionFinishEvent.Parameters.Should().Be(Parameter0);
                 transactionFinishEvent.Result.Should().Be(Result0);
@@ -1035,28 +1145,28 @@ namespace MiddleStack.Profiling.Tests
             }
             finally
             {
-                LiveProfiler.Instance.UnregisterEventHandler(syncHandler.Object);
-                LiveProfiler.Instance.UnregisterEventHandler(asyncHandler.Object);
+                LiveProfiler.Instance.UnregisterEventSubscriber(syncSubscriber.Object);
+                LiveProfiler.Instance.UnregisterEventSubscriber(asyncSubscriber.Object);
             }
         }
 
         [Test]
-        public void LiveProfiler_EventHandlersThrowExceptions_ExceptionsAreSwallowedAndEventsContinueToBeDelivered()
+        public void LiveProfiler_EventSubscribersThrowExceptions_ExceptionsAreSwallowedAndEventsContinueToBeDelivered()
         {
             // arrange
             var syncCompletionSource = new TaskCompletionSource<bool>();
             var asyncCompletionSource = new TaskCompletionSource<bool>();
-            var syncHandler = new Mock<IProfilerEventHandler>();
-            var asyncHandler = new Mock<IProfilerEventHandlerAsync>();
+            var syncSubscriber = new Mock<IProfilerEventSubscriber>();
+            var asyncSubscriber = new Mock<IProfilerEventSubscriberAsync>();
 
-            syncHandler.Setup(h => h.HandleEvent(It.IsAny<IProfilerEvent>()))
+            syncSubscriber.Setup(h => h.HandleEvent(It.IsAny<IProfilerEvent>()))
                 .Callback<IProfilerEvent>(evt =>
                 {
                     if (evt is ITransactionStartEvent) throw new Exception();
                     if (evt is ITransactionFinishEvent) syncCompletionSource.SetResult(true);
                 });
 
-            asyncHandler.Setup(h => h.HandleEventAsync(It.IsAny<IProfilerEvent>()))
+            asyncSubscriber.Setup(h => h.HandleEventAsync(It.IsAny<IProfilerEvent>()))
                 .Returns<IProfilerEvent>(evt =>
                 {
                     if (evt is ITransactionStartEvent) throw new Exception();
@@ -1067,10 +1177,10 @@ namespace MiddleStack.Profiling.Tests
             // execute
             try
             {
-                LiveProfiler.Instance.RegisterEventHandler(syncHandler.Object);
-                LiveProfiler.Instance.RegisterEventHandler(asyncHandler.Object);
+                LiveProfiler.Instance.RegisterEventSubscriber(syncSubscriber.Object);
+                LiveProfiler.Instance.RegisterEventSubscriber(asyncSubscriber.Object);
 
-                using (LiveProfiler.Instance.NewTransaction(Category0, Name0, Parameter0, CorrelationId0))
+                using (LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0, CorrelationId0))
                 {
                 }
 
@@ -1080,8 +1190,8 @@ namespace MiddleStack.Profiling.Tests
             }
             finally
             {
-                LiveProfiler.Instance.UnregisterEventHandler(syncHandler.Object);
-                LiveProfiler.Instance.UnregisterEventHandler(asyncHandler.Object);
+                LiveProfiler.Instance.UnregisterEventSubscriber(syncSubscriber.Object);
+                LiveProfiler.Instance.UnregisterEventSubscriber(asyncSubscriber.Object);
             }
         }
 
@@ -1091,20 +1201,20 @@ namespace MiddleStack.Profiling.Tests
             // arrange
             var syncCompletionSource = new TaskCompletionSource<bool>();
             var asyncCompletionSource = new TaskCompletionSource<bool>();
-            var syncHandler = new Mock<IProfilerEventHandler>();
-            var asyncHandler = new Mock<IProfilerEventHandlerAsync>();
+            var syncSubscriber = new Mock<IProfilerEventSubscriber>();
+            var asyncSubscriber = new Mock<IProfilerEventSubscriberAsync>();
 
             var syncEvents = new List<IProfilerEvent>();
             var asyncEvents = new List<IProfilerEvent>();
 
-            syncHandler.Setup(h => h.HandleEvent(It.IsAny<IProfilerEvent>()))
+            syncSubscriber.Setup(h => h.HandleEvent(It.IsAny<IProfilerEvent>()))
                 .Callback<IProfilerEvent>(evt =>
                 {
                     lock (syncEvents) syncEvents.Add(evt);
                     if (evt is ITransactionFinishEvent) syncCompletionSource.SetResult(true);
                 });
 
-            asyncHandler.Setup(h => h.HandleEventAsync(It.IsAny<IProfilerEvent>()))
+            asyncSubscriber.Setup(h => h.HandleEventAsync(It.IsAny<IProfilerEvent>()))
                 .Returns<IProfilerEvent>(evt =>
                 {
                     lock (asyncEvents) asyncEvents.Add(evt);
@@ -1115,12 +1225,12 @@ namespace MiddleStack.Profiling.Tests
             // execute
             try
             {
-                LiveProfiler.Instance.RegisterEventHandler(syncHandler.Object);
-                LiveProfiler.Instance.RegisterEventHandler(asyncHandler.Object);
+                LiveProfiler.Instance.RegisterEventSubscriber(syncSubscriber.Object);
+                LiveProfiler.Instance.RegisterEventSubscriber(asyncSubscriber.Object);
 
-                ITransaction transaction;
+                ITiming transaction;
 
-                using (transaction = LiveProfiler.Instance.NewTransaction(Category0, Name0, Parameter0))
+                using (transaction = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0))
                 {
                 }
 
@@ -1150,8 +1260,8 @@ namespace MiddleStack.Profiling.Tests
             }
             finally
             {
-                LiveProfiler.Instance.UnregisterEventHandler(syncHandler.Object);
-                LiveProfiler.Instance.UnregisterEventHandler(asyncHandler.Object);
+                LiveProfiler.Instance.UnregisterEventSubscriber(syncSubscriber.Object);
+                LiveProfiler.Instance.UnregisterEventSubscriber(asyncSubscriber.Object);
             }
         }
 
@@ -1161,20 +1271,20 @@ namespace MiddleStack.Profiling.Tests
             // arrange
             var syncCompletionSource = new TaskCompletionSource<bool>();
             var asyncCompletionSource = new TaskCompletionSource<bool>();
-            var syncHandler = new Mock<IProfilerEventHandler>();
-            var asyncHandler = new Mock<IProfilerEventHandlerAsync>();
+            var syncSubscriber = new Mock<IProfilerEventSubscriber>();
+            var asyncSubscriber = new Mock<IProfilerEventSubscriberAsync>();
 
             var syncEvents = new List<IProfilerEvent>();
             var asyncEvents = new List<IProfilerEvent>();
 
-            syncHandler.Setup(h => h.HandleEvent(It.IsAny<IProfilerEvent>()))
+            syncSubscriber.Setup(h => h.HandleEvent(It.IsAny<IProfilerEvent>()))
                 .Callback<IProfilerEvent>(evt =>
                 {
                     lock (syncEvents) syncEvents.Add(evt);
                     if (evt is ITransactionFinishEvent) syncCompletionSource.SetResult(true);
                 });
 
-            asyncHandler.Setup(h => h.HandleEventAsync(It.IsAny<IProfilerEvent>()))
+            asyncSubscriber.Setup(h => h.HandleEventAsync(It.IsAny<IProfilerEvent>()))
                 .Returns<IProfilerEvent>(evt =>
                 {
                     lock (asyncEvents) asyncEvents.Add(evt);
@@ -1185,13 +1295,13 @@ namespace MiddleStack.Profiling.Tests
             // execute
             try
             {
-                LiveProfiler.Instance.RegisterEventHandler(syncHandler.Object);
-                LiveProfiler.Instance.RegisterEventHandler(asyncHandler.Object);
+                LiveProfiler.Instance.RegisterEventSubscriber(syncSubscriber.Object);
+                LiveProfiler.Instance.RegisterEventSubscriber(asyncSubscriber.Object);
 
-                using (LiveProfiler.Instance.NewTransaction(Category0, Name0, Parameter0))
+                using (LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0))
                 {
-                    IStep step;
-                    using (step = LiveProfiler.Instance.Step(Category1, Name1, Parameter1))
+                    ITiming step;
+                    using (step = LiveProfiler.Instance.Step(Category1, Name1, DisplayName1, Parameter1))
                     {
                     }
 
@@ -1238,8 +1348,8 @@ namespace MiddleStack.Profiling.Tests
             }
             finally
             {
-                LiveProfiler.Instance.UnregisterEventHandler(syncHandler.Object);
-                LiveProfiler.Instance.UnregisterEventHandler(asyncHandler.Object);
+                LiveProfiler.Instance.UnregisterEventSubscriber(syncSubscriber.Object);
+                LiveProfiler.Instance.UnregisterEventSubscriber(asyncSubscriber.Object);
             }
         }
 
@@ -1248,7 +1358,7 @@ namespace MiddleStack.Profiling.Tests
         {
             CallContextHelper.GetCurrentStep().Should().BeNull();
 
-            using (var step = LiveProfiler.Instance.Step(Category0, Name0, Parameter0))
+            using (var step = LiveProfiler.Instance.Step(Category0, Name0, DisplayName0, Parameter0))
             {
                 step.Should().BeNull();
                 CallContextHelper.GetCurrentStep().Should().BeNull();
@@ -1260,9 +1370,9 @@ namespace MiddleStack.Profiling.Tests
         [Test]
         public void LiveProfiler_Step_CurrentTransactionFinished_ReturnsNullStep()
         {
-            ITransaction transaction;
+            ITiming transaction;
 
-            using (transaction = LiveProfiler.Instance.NewTransaction(Category0, Name0, Parameter0))
+            using (transaction = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0))
             {
             }
 
@@ -1270,7 +1380,7 @@ namespace MiddleStack.Profiling.Tests
 
             CallContextHelper.SetCurrentStep((Transaction)transaction);
 
-            using (var step = LiveProfiler.Instance.Step(Category0, Name0, Parameter0))
+            using (var step = LiveProfiler.Instance.Step(Category0, Name0, DisplayName0, Parameter0))
             {
                 step.Should().BeNull();
             }
@@ -1288,12 +1398,12 @@ namespace MiddleStack.Profiling.Tests
         public void LiveProfiler_GetRecentTransactions_RequestAllAndTransactionsPresent_ReturnInDescendingOrder()
         {
             // arrange
-            IList<ITransaction> finishedTransactions = new List<ITransaction>();
+            IList<ITiming> finishedTransactions = new List<ITiming>();
 
             for (var i = 0; i < 10; i++)
             {
-                ITransaction transaction;
-                using (transaction = LiveProfiler.Instance.NewTransaction(i.ToString(), i.ToString()))
+                ITiming transaction;
+                using (transaction = LiveProfiler.Instance.Transaction(i.ToString(), i.ToString()))
                 {
                     using (LiveProfiler.Instance.Step(i.ToString(), i.ToString()))
                     {
@@ -1303,11 +1413,11 @@ namespace MiddleStack.Profiling.Tests
                 finishedTransactions.Add(transaction);
             }
 
-            IList<ITransaction> inflightTransactions = new List<ITransaction>();
+            IList<ITiming> inflightTransactions = new List<ITiming>();
 
             for (var i = 0; i < 10; i++)
             {
-                var transaction = LiveProfiler.Instance.NewTransaction(i.ToString(), i.ToString(), forceNew: true);
+                var transaction = LiveProfiler.Instance.Transaction(i.ToString(), i.ToString(), mode: TransactionMode.Replace);
                 LiveProfiler.Instance.Step(i.ToString(), i.ToString());
 
                 inflightTransactions.Add(transaction);
@@ -1325,12 +1435,12 @@ namespace MiddleStack.Profiling.Tests
         public void LiveProfiler_GetRecentTransactions_RequestInflightOnlyAndTransactionsPresent_ReturnInflightTransactionsOnlyInDescendingOrder()
         {
             // arrange
-            IList<ITransaction> finishedTransactions = new List<ITransaction>();
+            IList<ITiming> finishedTransactions = new List<ITiming>();
 
             for (var i = 0; i < 10; i++)
             {
-                ITransaction transaction;
-                using (transaction = LiveProfiler.Instance.NewTransaction(i.ToString(), i.ToString()))
+                ITiming transaction;
+                using (transaction = LiveProfiler.Instance.Transaction(i.ToString(), i.ToString()))
                 {
                     using (LiveProfiler.Instance.Step(i.ToString(), i.ToString()))
                     {
@@ -1340,11 +1450,11 @@ namespace MiddleStack.Profiling.Tests
                 finishedTransactions.Add(transaction);
             }
 
-            IList<ITransaction> inflightTransactions = new List<ITransaction>();
+            IList<ITiming> inflightTransactions = new List<ITiming>();
 
             for (var i = 0; i < 10; i++)
             {
-                var transaction = LiveProfiler.Instance.NewTransaction(i.ToString(), i.ToString(), forceNew: true);
+                var transaction = LiveProfiler.Instance.Transaction(i.ToString(), i.ToString(), mode: TransactionMode.Replace);
                 LiveProfiler.Instance.Step(i.ToString(), i.ToString());
 
                 inflightTransactions.Add(transaction);
@@ -1364,7 +1474,7 @@ namespace MiddleStack.Profiling.Tests
             // arrange
             for (var i = 0; i < 10; i++)
             {
-                using (LiveProfiler.Instance.NewTransaction(i.ToString(), i.ToString()))
+                using (LiveProfiler.Instance.Transaction(i.ToString(), i.ToString()))
                 {
                     using (LiveProfiler.Instance.Step(i.ToString(), i.ToString()))
                     {
@@ -1383,12 +1493,12 @@ namespace MiddleStack.Profiling.Tests
         public void LiveProfiler_GetRecentTransactions_RecentTransactionsExceed100_ReturnsMostRecent100InDescendingOrder()
         {
             // arrange
-            IList<ITransaction> finishedTransactions = new List<ITransaction>();
+            IList<ITiming> finishedTransactions = new List<ITiming>();
 
             for (var i = 0; i < 120; i++)
             {
-                ITransaction transaction;
-                using (transaction = LiveProfiler.Instance.NewTransaction(i.ToString(), i.ToString()))
+                ITiming transaction;
+                using (transaction = LiveProfiler.Instance.Transaction(i.ToString(), i.ToString()))
                 {
                     using (LiveProfiler.Instance.Step(i.ToString(), i.ToString()))
                     {

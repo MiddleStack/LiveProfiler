@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -9,19 +10,20 @@ using MiddleStack.Profiling.Events;
 
 namespace MiddleStack.Profiling
 {
-    internal abstract class StepBase: IStep
+    internal abstract class Timing: ITiming
     {
         private readonly LiveProfiler _profiler;
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
-        private readonly Lazy<List<StepBase>> _children = new Lazy<List<StepBase>>(() => new List<StepBase>());
+        private readonly Lazy<List<Timing>> _children = new Lazy<List<Timing>>(() => new List<Timing>());
 
-        protected StepBase(LiveProfiler profiler, string category, string name, object parameters, StepBase parent)
+        protected Timing(LiveProfiler profiler, string category, string name, string displayName, object parameters, Timing parent)
         {
             _profiler = profiler;
 
             Id = Guid.NewGuid();
             Category = category;
             Name = name;
+            DisplayName = displayName;
             Parent = parent;
             Parameters = parameters;
             Start = DateTimeOffset.Now;
@@ -45,6 +47,7 @@ namespace MiddleStack.Profiling
         public Guid Id { get; }
         public string Category { get; }
         public string Name { get; }
+        public string DisplayName { get; }
         public object Parameters { get; }
         public object Result { get; private set; }
 
@@ -54,7 +57,7 @@ namespace MiddleStack.Profiling
 
         public TransactionState State { get; private set; } = TransactionState.Inflight;
 
-        public StepBase Parent { get; }
+        public Timing Parent { get; }
         public int VersionStarted { get; }
         public int? VersionFinished { get; private set; }
 
@@ -74,6 +77,7 @@ namespace MiddleStack.Profiling
             snapshot.Id = Id;
             snapshot.Category = Category;
             snapshot.Name = Name;
+            snapshot.DisplayName = DisplayName;
             snapshot.Start = Start;
             snapshot.Parameters = Parameters;
             snapshot.Duration = Duration;
@@ -142,5 +146,7 @@ namespace MiddleStack.Profiling
                 }
             }
         }
+
+        public abstract TransactionSnapshot GetTransactionSnapshot();
     }
 }

@@ -33,14 +33,23 @@ namespace MiddleStack.Profiling
         /// </value>
         public string Category { get; set; }
         /// <summary>
-        ///     Gets or sets the name of this transaction. It is recommended that the name
+        ///     Gets or sets the name of this transaction. The name
         ///     does not contain any instance-specific values, such as entity ids. Such values
-        ///     should be placed in the <see cref="Parameters"/> object.
+        ///     are found in the <see cref="Parameters"/> object.
         /// </summary>
         /// <value>
         ///     A <see cref="string"/> providing the name of this transaction or step.
         /// </value>
         public string Name { get; set; }
+        /// <summary>
+        ///     Gets or sets the display name of this transaction. This name is distinguished
+        ///     from <see cref="Name"/> in that it may contain some instance specific values 
+        ///     from <see cref="Parameters"/>.
+        /// </summary>
+        /// <value>
+        ///     A <see cref="string"/> providing the name of this transaction or step.
+        /// </value>
+        public string DisplayName { get; set; }
         /// <summary>
         ///     Gets or sets the parameters with which this transaction or step was 
         ///     initialized.

@@ -9,9 +9,10 @@ using MiddleStack.Profiling.Events;
 
 namespace MiddleStack.Profiling
 {
-    internal class Step: StepBase
+    internal class Step: Timing
     {
-        public Step(LiveProfiler profiler, string category, string name, object parameters, StepBase parent) : base(profiler, category, name, parameters, parent)
+        public Step(LiveProfiler profiler, string category, string name, string displayName, object parameters, Timing parent) 
+            : base(profiler, category, name, displayName, parameters, parent)
         {
             var stepParent = parent as Step;
             RelativeStart = (stepParent?.RelativeStart ?? TimeSpan.Zero) + (parent?.Elapsed ?? TimeSpan.Zero);
@@ -50,5 +51,9 @@ namespace MiddleStack.Profiling
             return new StepFinishEvent(this, version);
         }
 
+        public override TransactionSnapshot GetTransactionSnapshot()
+        {
+            return Transaction.GetTransactionSnapshot();
+        }
     }
 }

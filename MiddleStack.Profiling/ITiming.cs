@@ -11,7 +11,7 @@ namespace MiddleStack.Profiling
     ///     either <see cref="Success"/> or <see cref="Failure"/> is invoked, 
     ///     the step is marked as complete, along with all of its outstanding child steps.
     /// </summary>
-    public interface IStep: IDisposable
+    public interface ITiming: IDisposable
     {
         /// <summary>
         ///     Marks this transaction/step as successfully completed, with the specified result object.
@@ -42,5 +42,14 @@ namespace MiddleStack.Profiling
         ///     The argument <paramref name="result"/> is <see langword="null"/>.
         /// </exception>
         void Failure(object result);
+
+        /// <summary>
+        ///     Gets the snap shot of the transaction state.
+        /// </summary>
+        /// <returns>
+        ///     A <see cref="TransactionSnapshot"/> object of the transaction state.
+        ///     Never <see langword="null"/>.
+        /// </returns>
+        TransactionSnapshot GetTransactionSnapshot();
     }
 }

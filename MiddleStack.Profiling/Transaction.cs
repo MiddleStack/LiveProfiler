@@ -8,12 +8,13 @@ using MiddleStack.Profiling.Events;
 
 namespace MiddleStack.Profiling
 {
-    internal class Transaction: StepBase, ITransaction
+    internal class Transaction: Timing
     {
         private int _version;
         private static int _sequenceSeed;
 
-        public Transaction(LiveProfiler profiler, string category, string name, object parameters, string correlationId) : base(profiler, category, name, parameters, null)
+        public Transaction(LiveProfiler profiler, string category, string name, string displayName, object parameters, string correlationId) 
+            : base(profiler, category, name, displayName, parameters, null)
         {
             CorrelationId = correlationId;
             Sequence = Interlocked.Increment(ref _sequenceSeed);
@@ -32,10 +33,11 @@ namespace MiddleStack.Profiling
 
         public override TransactionState TransactionState => State;
 
-        public TransactionSnapshot GetTransactionSnapshot()
+        public override TransactionSnapshot GetTransactionSnapshot()
         {
             return GetTransactionSnapshot(null);
         }
+
         internal TransactionSnapshot GetTransactionSnapshot(int? version)
         {
             return (TransactionSnapshot)GetSnapshot(version);

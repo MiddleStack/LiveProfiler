@@ -8,9 +8,9 @@ namespace MiddleStack.Profiling.Events
 {
     /// <summary>
     ///     Implement this interface to handle step events raised by <see cref="ILiveProfiler"/>.
-    ///     Use <see cref="IProfilerEventHandlerAsync"/> if the handler logic contains asynchronous code.
+    ///     Use <see cref="IProfilerEventSubscriberAsync"/> if the handler logic contains asynchronous code.
     /// </summary>
-    public interface IProfilerEventHandler
+    public interface IProfilerEventSubscriber
     {
         /// <summary>
         ///     Handles an event that just occurred on a profled transaction or step.

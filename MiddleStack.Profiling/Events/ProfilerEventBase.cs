@@ -8,10 +8,10 @@ namespace MiddleStack.Profiling.Events
 {
     internal class ProfilerEventBase: IProfilerEvent
     {
-        private readonly StepBase _step;
+        private readonly Timing _step;
         private readonly int _version;
 
-        protected ProfilerEventBase(StepBase step, int version)
+        protected ProfilerEventBase(Timing step, int version)
         {
             _step = step;
             _version = version;
@@ -19,6 +19,7 @@ namespace MiddleStack.Profiling.Events
             Category = step.Category;
             Parameters = step.Parameters;
             Name = step.Name;
+            DisplayName = step.DisplayName;
             Start = step.Start;
         }
         public Guid Id { get; }
@@ -33,5 +34,7 @@ namespace MiddleStack.Profiling.Events
 
             return (transaction ?? step.Transaction).GetTransactionSnapshot(_version);
         }
+
+        public string DisplayName { get; }
     }
 }
