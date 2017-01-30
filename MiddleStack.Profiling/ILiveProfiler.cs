@@ -46,7 +46,7 @@ namespace MiddleStack.Profiling
         /// <returns>
         ///     An <see cref="ITiming"/> object which, when disposed, marks this step as finished.
         ///     It can also be used to access the current state of the transaction. If no step is created, 
-        ///     <see langword="null"/>.
+        ///     an <see cref="ITiming"/> that does nothing is returned.
         /// </returns>
         /// <exception cref="ArgumentNullException">
         ///     <para>The argument <paramref name="category"/> is <see langword="null"/> or empty.</para>

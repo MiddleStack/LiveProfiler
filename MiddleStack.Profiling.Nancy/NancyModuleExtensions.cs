@@ -49,7 +49,7 @@ namespace MiddleStack.Profiling.Nancy
                 } : null;
 
                 var transaction = LiveProfiler.Instance.Transaction(
-                    "Nancy.Request",
+                    "Nancy",
                     name, 
                     displayName,
                     parameters,

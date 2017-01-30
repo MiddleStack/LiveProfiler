@@ -1354,13 +1354,13 @@ namespace MiddleStack.Profiling.Tests
         }
 
         [Test]
-        public void LiveProfiler_Step_NoCurrentTransaction_ReturnsNullStep()
+        public void LiveProfiler_Step_NoCurrentTransaction_ReturnsInertStep()
         {
             CallContextHelper.GetCurrentStep().Should().BeNull();
 
             using (var step = LiveProfiler.Instance.Step(Category0, Name0, DisplayName0, Parameter0))
             {
-                step.Should().BeNull();
+                step.Should().BeOfType<InertTiming>();
                 CallContextHelper.GetCurrentStep().Should().BeNull();
             }
 
@@ -1368,7 +1368,7 @@ namespace MiddleStack.Profiling.Tests
         }
 
         [Test]
-        public void LiveProfiler_Step_CurrentTransactionFinished_ReturnsNullStep()
+        public void LiveProfiler_Step_CurrentTransactionFinished_ReturnsInertStep()
         {
             ITiming transaction;
 
@@ -1382,7 +1382,7 @@ namespace MiddleStack.Profiling.Tests
 
             using (var step = LiveProfiler.Instance.Step(Category0, Name0, DisplayName0, Parameter0))
             {
-                step.Should().BeNull();
+                step.Should().BeOfType<InertTiming>();
             }
 
             CallContextHelper.GetCurrentStep().Should().Be(transaction);

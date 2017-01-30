@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InertTiming.cs" />
     <Compile Include="TransactionMode.cs" />
     <Compile Include="TransactionState.cs" />
     <Compile Include="LiveProfiler.cs" />

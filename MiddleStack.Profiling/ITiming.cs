@@ -35,13 +35,10 @@ namespace MiddleStack.Profiling
         ///     If this instance is already complete, no action is taken.
         /// </remarks>
         /// <param name="result">
-        ///     Required. A simple serializable object, or an exception object, that encapsulates the reason 
+        ///     Optional. A simple serializable object, or an exception object, that encapsulates the reason 
         ///     that this transaction/step failed. 
         /// </param>
-        /// <exception cref="ArgumentNullException">
-        ///     The argument <paramref name="result"/> is <see langword="null"/>.
-        /// </exception>
-        void Failure(object result);
+        void Failure(object result = null);
 
         /// <summary>
         ///     Gets the snap shot of the transaction state.

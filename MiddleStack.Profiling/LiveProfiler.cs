@@ -19,6 +19,7 @@ namespace MiddleStack.Profiling
         private readonly Queue<Transaction> _recentTransactions = new Queue<Transaction>();
         private readonly ConcurrentDictionary<object, HandlerInfo> _eventHandlerMap 
             = new ConcurrentDictionary<object, HandlerInfo>();
+        private static readonly InertTiming InertTiming = new InertTiming();
 
         /// <summary>
         ///     Gets the singleton instance of <see cref="ILiveProfiler"/>.
@@ -46,7 +47,7 @@ namespace MiddleStack.Profiling
                 }
             }
 
-            return null;
+            return InertTiming;
         }
 
         private Step DoStep(string category, string name, string displayName, object parameters, Timing currentStep)

@@ -124,8 +124,6 @@ namespace MiddleStack.Profiling
 
         public void Failure(object result)
         {
-            if (result == null) throw new ArgumentNullException(nameof(result));
-
             lock (SyncRoot)
             {
                 if (State == TransactionState.Inflight)
