@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Owin.Hosting;
+using MiddleStack.Profiling.Testing;
 using MiddleStack.Testing;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -24,7 +25,7 @@ namespace MiddleStack.Profiling.Owin.RestApi.Tests
         [SetUp]
         public void Setup()
         {
-            LiveProfiler.ResetForTesting();
+            LiveProfiler.Instance.TestingReset();
 
             const string basePath = "/B1E727D5DA714C57A4D7154E497105DB";
 

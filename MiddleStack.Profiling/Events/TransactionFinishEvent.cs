@@ -12,11 +12,13 @@ namespace MiddleStack.Profiling.Events
         {
             Duration = transaction.Duration;
             IsSuccess = transaction.State == TransactionState.Success;
+            CorrelationId = transaction.CorrelationId;
             Result = transaction.Result;
         }
 
         public TimeSpan Duration { get; }
         public bool IsSuccess { get; }
         public object Result { get; set; }
+        public string CorrelationId { get; }
     }
 }

@@ -168,7 +168,7 @@ namespace MiddleStack.Profiling
             }
         }
 
-        internal static void ResetForTesting()
+        internal void TestingReset()
         {
             CallContextHelper.SetCurrentStep(null);
             lock (((LiveProfiler) Instance)._recentTransactions)

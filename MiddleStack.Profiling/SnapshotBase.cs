@@ -74,12 +74,23 @@ namespace MiddleStack.Profiling
         /// </value>
         public DateTimeOffset Start { get; set; }
         /// <summary>
-        ///     Gets or sets the duration of this transaction or step, whether or not it's finished executing.
+        ///     Gets or sets the duration of this transaction or step, whether or not it's finished executing,
+        ///     inclusive of the duration of child steps. For the time consumed by this step's own code,
+        ///     use <see cref="OwnDuration"/>.
         /// </summary>
         /// <value>
         ///     A <see cref="TimeSpan"/> value providing the duration of this transaction/step.
         /// </value>
         public TimeSpan Duration { get; set; }
+        /// <summary>
+        ///     Gets or sets the duration of this transaction or step, whether or not it's finished executing,
+        ///     exclusive of the duration of the child steps.
+        /// </summary>
+        /// <value>
+        ///     A <see cref="TimeSpan"/> value providing the time consumed by own code of this transaction/step
+        ///     exclusive of child stepss.
+        /// </value>
+        public TimeSpan OwnDuration { get; set; }
         /// <summary>
         ///     Gets or sets the state of this transaction or state.
         /// </summary>

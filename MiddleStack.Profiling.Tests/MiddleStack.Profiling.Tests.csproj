@@ -63,6 +63,7 @@
     <Compile Include="LiveProfilerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StepExtensions.cs" />
+    <Compile Include="TypeExtensionsTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -72,6 +73,9 @@
       <Project>{b159f9d2-1822-4f66-bf70-bc8308f41eb0}</Project>
       <Name>MiddleStack.Profiling</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

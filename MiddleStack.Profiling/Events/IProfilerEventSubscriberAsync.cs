@@ -14,6 +14,8 @@ namespace MiddleStack.Profiling.Events
     {
         /// <summary>
         ///     Handles an event that just occurred on a profled transaction or step.
+        ///     The events are guaranteed to come in the correct order, and this method will only be
+        ///     called serially.
         /// </summary>
         /// <remarks>
         ///     The handler should do its own exception handling. Any unhandled exception is swallowed.

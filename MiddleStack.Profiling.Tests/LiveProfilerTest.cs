@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MiddleStack.Profiling.Events;
+using MiddleStack.Profiling.Testing;
 using Moq;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
@@ -48,7 +49,7 @@ namespace MiddleStack.Profiling.Tests
         [SetUp]
         public void Initialize()
         {
-            LiveProfiler.ResetForTesting();
+            LiveProfiler.Instance.TestingReset();
         }
 
         [Test]
@@ -1140,6 +1141,7 @@ namespace MiddleStack.Profiling.Tests
                 transactionFinishEvent.Result.Should().Be(Result0);
                 transactionFinishEvent.Id.Should().NotBeEmpty();
                 transactionFinishEvent.IsSuccess.Should().BeTrue();
+                transactionFinishEvent.CorrelationId.Should().Be(CorrelationId0);
                 transactionFinishEvent.GetTransactionSnapshot().Should().NotBeNull();
                 transactionFinishEvent.Duration.Should().BeGreaterThan(TimeSpan.Zero);
             }

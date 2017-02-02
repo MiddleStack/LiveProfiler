@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>LiveProfiler.Nancy</id>
-    <version>0.2.5-a</version>
+    <version>0.2.5</version>
     <authors>Tony Chow</authors>
     <owners>Tony Chow</owners>
     <description>Enables the profiling of .NET applications written using the Nancy framework.</description>

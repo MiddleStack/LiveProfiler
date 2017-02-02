@@ -17,7 +17,8 @@ namespace MiddleStack.Profiling.Nancy
         private const string TransactionKey = "__LiveProfilerTransaction";
 
         /// <summary>
-        ///     Enables the profiling of Nancy requests. Call this method within the 
+        ///     Creats a LiveProfiler transaction for each Nancy request handled by this module. 
+        ///     Call this method within the 
         ///     module's constructor method. Any additional module event hooks should
         ///     be contained in the <paramref name="additionalModuleHooks"/> delegate.
         /// </summary>
@@ -25,7 +26,9 @@ namespace MiddleStack.Profiling.Nancy
         ///     The <see cref="NancyModule"/> object on which to enable profiling.
         /// </param>
         /// <param name="additionalModuleHooks">
-        ///     The delegate that adds module hooks 
+        ///     The delegate that adds module event hooks onto the module. Assign all aditional event hooks
+        ///     in this delegate, if you desire to have LiveProfiler include the actions taken by these event
+        ///     hooks in the profiler transaction.
         /// </param>
         /// <param name="correlationIdGetter">
         ///     A delegate that obtains the correlation Id of transaction from the 

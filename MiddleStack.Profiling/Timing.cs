@@ -55,6 +55,31 @@ namespace MiddleStack.Profiling
 
         public TimeSpan Duration => _stopwatch.Elapsed;
 
+        public TimeSpan OwnDuration
+        {
+            get
+            {
+                var childrenDuration = TimeSpan.Zero;
+
+                lock (SyncRoot)
+                {
+                    if (_children.IsValueCreated)
+                    {
+                        foreach (var child in _children.Value)
+                        {
+                            childrenDuration += child.Duration;
+                        }
+                    }
+
+                    var result = Duration - childrenDuration;
+
+                    if (result < TimeSpan.Zero) result = TimeSpan.Zero;
+
+                    return result;
+                }
+            }
+        }
+
         public TransactionState State { get; private set; } = TransactionState.Inflight;
 
         public Timing Parent { get; }
@@ -71,31 +96,35 @@ namespace MiddleStack.Profiling
 
         protected virtual SnapshotBase GetSnapshot(int? version)
         {
-            if (version != null && VersionStarted > version) return null;
-
-            var snapshot = NewSnapshot();
-            snapshot.Id = Id;
-            snapshot.Category = Category;
-            snapshot.Name = Name;
-            snapshot.DisplayName = DisplayName;
-            snapshot.Start = Start;
-            snapshot.Parameters = Parameters;
-            snapshot.Duration = Duration;
-
-            if (version == null || VersionFinished <= version)
+            lock (SyncRoot)
             {
-                snapshot.State = State;
-                snapshot.Result = Result;
-            }
+                if (version != null && VersionStarted > version) return null;
 
-            if (_children.IsValueCreated)
-            {
-                snapshot.Steps = _children.Value
-                    .Select(child => (StepSnapshot)child.GetSnapshot(version))
-                    .Where(s => s != null).ToArray();
-            }
+                var snapshot = NewSnapshot();
+                snapshot.Id = Id;
+                snapshot.Category = Category;
+                snapshot.Name = Name;
+                snapshot.DisplayName = DisplayName;
+                snapshot.Start = Start;
+                snapshot.Parameters = Parameters;
+                snapshot.Duration = Duration;
+                snapshot.OwnDuration = OwnDuration;
 
-            return snapshot;
+                if (version == null || VersionFinished <= version)
+                {
+                    snapshot.State = State;
+                    snapshot.Result = Result;
+                }
+
+                if (_children.IsValueCreated)
+                {
+                    snapshot.Steps = _children.Value
+                        .Select(child => (StepSnapshot)child.GetSnapshot(version))
+                        .Where(s => s != null).ToArray();
+                }
+
+                return snapshot;
+            }
         }
 
         public TimeSpan Elapsed => _stopwatch.Elapsed;

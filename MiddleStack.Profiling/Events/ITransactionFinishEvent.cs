@@ -12,6 +12,13 @@ namespace MiddleStack.Profiling.Events
     public interface ITransactionFinishEvent: IProfilerEvent
     {
         /// <summary>
+        ///     Gets the identifier that can associate this transaction with other transactions.
+        /// </summary>
+        /// <value>
+        ///     A <see cref="string"/> that provides the correlation Id, <see langword="null"/> if unspecified.
+        /// </value>
+        string CorrelationId { get; }
+        /// <summary>
         ///     Gets the duration of this transaction, if it's already finished.
         /// </summary>
         /// <value>

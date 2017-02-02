@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="InertTiming.cs" />
+    <Compile Include="Testing\LiveProfilerTestingExtensions.cs" />
     <Compile Include="TransactionMode.cs" />
     <Compile Include="TransactionState.cs" />
     <Compile Include="LiveProfiler.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="StepSnapshot.cs" />
     <Compile Include="Transaction.cs" />
     <Compile Include="TransactionSnapshot.cs" />
+    <Compile Include="TypeExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MiddleStack.Profiling.nuspec" />
