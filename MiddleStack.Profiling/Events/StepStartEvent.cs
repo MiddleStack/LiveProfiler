@@ -16,5 +16,6 @@ namespace MiddleStack.Profiling.Events
 
         public Guid ParentId { get; }
         public TimeSpan RelativeStart { get; }
+        public override ProfilerEventType Type => ProfilerEventType.StepStart;
     }
 }

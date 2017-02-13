@@ -18,7 +18,7 @@ namespace MiddleStack.Profiling.PerfCounters
     ///     reinstalls the categories if the existing categories do not have the correct number and types
     ///     of counters.</para>
     ///     <para>Two performance counter categories are installed:</para>
-    ///     <list type="bullet">
+    ///     <list type="table">
     ///         <listheader>
     ///             <term>Category</term>
     ///             <description>Description</description>

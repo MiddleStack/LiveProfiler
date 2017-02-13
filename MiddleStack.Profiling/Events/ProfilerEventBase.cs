@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MiddleStack.Profiling.Events
 {
-    internal class ProfilerEventBase: IProfilerEvent
+    internal abstract class ProfilerEventBase: IProfilerEvent
     {
         private readonly Timing _step;
         private readonly int _version;
@@ -36,5 +36,6 @@ namespace MiddleStack.Profiling.Events
         }
 
         public string DisplayName { get; }
+        public abstract ProfilerEventType Type { get; }
     }
 }

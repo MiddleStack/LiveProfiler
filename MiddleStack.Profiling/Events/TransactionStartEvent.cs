@@ -14,5 +14,6 @@ namespace MiddleStack.Profiling.Events
         }
 
         public string CorrelationId { get; }
+        public override ProfilerEventType Type => ProfilerEventType.TransactionStart;
     }
 }

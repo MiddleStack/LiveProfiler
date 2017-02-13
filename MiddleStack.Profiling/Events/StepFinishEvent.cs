@@ -18,5 +18,6 @@ namespace MiddleStack.Profiling.Events
         public TimeSpan Duration { get; }
         public bool IsSuccess { get; }
         public object Result { get; set; }
+        public override ProfilerEventType Type => ProfilerEventType.StepFinish;
     }
 }

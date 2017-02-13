@@ -13,6 +13,16 @@ namespace MiddleStack.Profiling.Events
     public interface IProfilerEvent
     {
         /// <summary>
+        ///     Gets the type of event this is. Each event type has a unique interface type
+        ///     that derives from <see cref="IProfilerEvent"/>.
+        /// </summary>
+        /// <value>
+        ///     A <see cref="ProfilerEventType"/> value, corresponding to the specific type of
+        ///     interface this instance implements.
+        /// </value>
+        ProfilerEventType Type { get; }
+
+        /// <summary>
         ///     Gets the unique identifier of a transaction or step.
         /// </summary>
         /// <value>

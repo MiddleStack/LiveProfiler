@@ -20,5 +20,6 @@ namespace MiddleStack.Profiling.Events
         public bool IsSuccess { get; }
         public object Result { get; set; }
         public string CorrelationId { get; }
+        public override ProfilerEventType Type => ProfilerEventType.TransactionFinish;
     }
 }
