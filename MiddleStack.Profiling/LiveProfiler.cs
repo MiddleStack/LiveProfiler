@@ -175,6 +175,8 @@ namespace MiddleStack.Profiling
             {
                 ((LiveProfiler)Instance)._recentTransactions.Clear();
             }
+
+            _eventHandlerMap.Clear();
         }
 
         private void AddEventHandler(object handler)

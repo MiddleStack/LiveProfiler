@@ -41,7 +41,7 @@ namespace MiddleStack.Profiling.StreamingServer
                 }
                 else
                 {
-                    await _next.Invoke(context);
+                    await _next.Invoke(context).ConfigureAwait(false);
                 }
             }
         }

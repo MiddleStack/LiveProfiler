@@ -5,67 +5,11 @@
     <meta name="robots" content="noindex, nofollow">
     <meta name="googlebot" content="noindex, nofollow">
     <script type="text/javascript" src="https://unpkg.com/vue@latest/dist/vue.js"></script>
-    <style type="text/css">
-        body {
-            font-family: Helvetica Neue, Arial, sans-serif;
-            font-size: 14px;
-            color: #444;
-        }
-
-        table {
-            border: 2px solid #42b983;
-            border-radius: 3px;
-            background-color: #fff;
-        }
-
-        th {
-            background-color: #42b983;
-            color: rgba(255,255,255,0.66);
-            cursor: pointer;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-
-        td {
-            background-color: #f9f9f9;
-        }
-
-        th, td {
-            padding: 10px ;
-        }
-
-            th.active {
-                color: #fff;
-            }
-
-                th.active .arrow {
-                    opacity: 1;
-                }
-
-        .arrow {
-            display: inline-block;
-            vertical-align: middle;
-            width: 0;
-            height: 0;
-            margin-left: 5px;
-            opacity: 0.66;
-        }
-
-            .arrow.asc {
-                border-left: 4px solid transparent;
-                border-right: 4px solid transparent;
-                border-bottom: 4px solid #fff;
-            }
-
-            .arrow.dsc {
-                border-left: 4px solid transparent;
-                border-right: 4px solid transparent;
-                border-top: 4px solid #fff;
-            }
-    </style>
-    <title> by yyx990803</title>
+    <link rel="stylesheet" type="text/css" href="css/ui.css">
+    <title>LiveProfiler</title>
+    <script src="scripts/jquery-1.6.4.min.js"></script>
+    <script src="scripts/jquery.signalR-2.2.1.min.js"></script>
+    <script src="signalr/hubs"></script>
     <script type="text/javascript">
 //<![CDATA[
 window.onload=function(){
@@ -81,13 +25,13 @@ window.onload=function(){
         },
         data: function() {
             var sortOrders = {}
-            this.columns.forEach(function(key) {
-                sortOrders[key] = 1;
-            })
+            this.columns.forEach(function (key) {
+                sortOrders[key] = key == 'index' ? -1 : 1;
+            });
             return {
-                sortKey: '',
+                sortKey: 'index',
                 sortOrders: sortOrders
-            }
+            };
         },
         computed: {
             filteredData: function() {
@@ -114,13 +58,13 @@ window.onload=function(){
         },
         filters: {
             capitalize: function(str) {
-                return str.charAt(0).toUpperCase() + str.slice(1)
+                return str.charAt(0).toUpperCase() + str.slice(1);
             }
         },
         methods: {
             sortBy: function(key) {
-                this.sortKey = key
-                this.sortOrders[key] = this.sortOrders[key] * -1
+                this.sortKey = key;
+                this.sortOrders[key] = this.sortOrders[key] * -1;
             }
         }
     });
@@ -143,7 +87,17 @@ window.onload=function(){
             }
         }
     });
-}//]]>
+
+    var connection = $.hubConnection();
+    var contosoChatHubProxy = connection.createHubProxy('EventConsumerHub');
+    contosoChatHubProxy.on('event', function(evt) {
+        console.log(evt.type);
+    });
+    connection.start()
+        .done(function(){ console.log('Now connected, connection ID=' + connection.id); })
+        .fail(function(){ console.log('Could not connect'); });
+}
+//]]>
 
     </script>
 </head>
@@ -156,7 +110,8 @@ window.onload=function(){
                 <tr>
                     <th v-for="key in columns"
                         @click="sortBy(key)"
-                        :class="{ active: sortKey == key }">
+                        :class="{ active: sortKey == key }"
+                        :style="'width:' + (key == 'index' ? '55px' : (key == 'name' ? 'auto' : '100px'))">
                         {{ key | capitalize }}
                         <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
                         </span>

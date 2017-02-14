@@ -50,19 +50,19 @@ namespace MiddleStack.Profiling.Streaming
                 {"appName", _appName}
             });
 
-            var hubProxy = connection.CreateHubProxy("EventIngest");
+            var hubProxy = connection.CreateHubProxy("EventIngestHub");
 
-            hubProxy.On("startEvents", data =>
+            hubProxy.On("startEvents", () =>
             {
                 Interlocked.Exchange(ref _sending, 1);
             });
 
-            hubProxy.On("stopEvents", data =>
+            hubProxy.On("stopEvents", () =>
             {
                 Interlocked.Exchange(ref _sending, 1);
             });
 
-            await connection.Start();
+            await connection.Start().ConfigureAwait(false);
 
             return hubProxy;
         }
@@ -72,10 +72,16 @@ namespace MiddleStack.Profiling.Streaming
             if (_sending != 1) return;
 
             var proxy = await _hubProxy.ConfigureAwait(false);
+            try
+            {
+                var message = ToMessage(stepEvent);
 
-            var message = ToMessage(stepEvent);
-
-            await proxy.Invoke("event", message).ConfigureAwait(false);
+                await proxy.Invoke("event", message).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         private static dynamic ToMessage(IProfilerEvent stepEvent)
@@ -112,12 +118,14 @@ namespace MiddleStack.Profiling.Streaming
             }
             else if (transactionFinish != null)
             {
+                message.id = transactionFinish.Id.ToString("n");
                 message.duration = transactionFinish.Duration;
                 message.isSuccess = transactionFinish.IsSuccess;
                 message.result = transactionFinish.Result;
             }
             else if (stepFinish != null)
             {
+                message.id = stepFinish.Id.ToString("n");
                 message.duration = stepFinish.Duration;
                 message.isSuccess = stepFinish.IsSuccess;
                 message.result = stepFinish.Result;

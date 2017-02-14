@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiddleStack.Profiling.Strea
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiddleStack.Profiling.StreamingServer", "MiddleStack.Profiling.StreamingServer\MiddleStack.Profiling.StreamingServer.csproj", "{C9F937F7-387A-4CBC-862C-6933A72CF97A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiddleStack.Profiling.Streaming.Tests", "MiddleStack.Profiling.Streaming.Tests\MiddleStack.Profiling.Streaming.Tests.csproj", "{28BD5749-7CE2-4877-A185-622DA8772891}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,6 +76,10 @@ Global
 		{C9F937F7-387A-4CBC-862C-6933A72CF97A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9F937F7-387A-4CBC-862C-6933A72CF97A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9F937F7-387A-4CBC-862C-6933A72CF97A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28BD5749-7CE2-4877-A185-622DA8772891}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28BD5749-7CE2-4877-A185-622DA8772891}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28BD5749-7CE2-4877-A185-622DA8772891}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28BD5749-7CE2-4877-A185-622DA8772891}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
