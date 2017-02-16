@@ -213,6 +213,14 @@ namespace MiddleStack.Profiling.PerfCounters
             }
         }
 
+        void IProfilerEventSubscriber.Start()
+        {
+        }
+
+        void IProfilerEventSubscriber.Stop()
+        {
+        }
+
         /// <summary>
         ///     Installs perf counters categories, the names of which are specified in the configruation 
         ///     object received by the constructor.

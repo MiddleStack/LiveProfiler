@@ -101,7 +101,7 @@ namespace MiddleStack.Profiling.Streaming.Tests
                     ServerUrl = new Uri(_baseUrl)
                 });
 
-                LiveProfiler.Instance.RegisterEventSubscriber(streamer);
+                LiveProfiler.Instance.RegisterEventSubscriber(streamer);    
 
                 try
                 {

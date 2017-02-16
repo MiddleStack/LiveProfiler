@@ -1065,6 +1065,9 @@ namespace MiddleStack.Profiling.Tests
                 LiveProfiler.Instance.RegisterEventSubscriber(syncSubscriber.Object);
                 LiveProfiler.Instance.RegisterEventSubscriber(asyncSubscriber.Object);
 
+                syncSubscriber.Verify(s => s.Start());
+                asyncSubscriber.Verify(s => s.Start());
+
                 using (var transaction = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0, Parameter0, CorrelationId0))
                 {
                     for (var i = 0; i < stepCount; i++)
@@ -1150,6 +1153,9 @@ namespace MiddleStack.Profiling.Tests
                 LiveProfiler.Instance.UnregisterEventSubscriber(syncSubscriber.Object);
                 LiveProfiler.Instance.UnregisterEventSubscriber(asyncSubscriber.Object);
             }
+
+            syncSubscriber.Verify(s => s.Stop());
+            asyncSubscriber.Verify(s => s.Stop());
         }
 
         [Test]

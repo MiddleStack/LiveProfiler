@@ -17,8 +17,8 @@ namespace MiddleStack.Profiling
         private const int MaxTrackedTransactionCount = 100;
         private static readonly TimeSpan EventQueueCheckInterval = TimeSpan.FromMilliseconds(100);
         private readonly Queue<Transaction> _recentTransactions = new Queue<Transaction>();
-        private readonly ConcurrentDictionary<object, HandlerInfo> _eventHandlerMap 
-            = new ConcurrentDictionary<object, HandlerInfo>();
+        private readonly ConcurrentDictionary<object, SubscriberInfo> _eventSubscriberMap 
+            = new ConcurrentDictionary<object, SubscriberInfo>();
         private static readonly InertTiming InertTiming = new InertTiming();
 
         /// <summary>
@@ -121,28 +121,28 @@ namespace MiddleStack.Profiling
         {
             if (eventSubscriber == null) throw new ArgumentNullException(nameof(eventSubscriber));
 
-            AddEventHandler(eventSubscriber);
+            AddEventSubscriber(eventSubscriber);
         }
 
         void ILiveProfiler.RegisterEventSubscriber(IProfilerEventSubscriberAsync eventSubscriber)
         {
             if (eventSubscriber == null) throw new ArgumentNullException(nameof(eventSubscriber));
 
-            AddEventHandler(eventSubscriber);
+            AddEventSubscriber(eventSubscriber);
         }
 
         void ILiveProfiler.UnregisterEventSubscriber(IProfilerEventSubscriber eventSubscriber)
         {
             if (eventSubscriber == null) throw new ArgumentNullException(nameof(eventSubscriber));
 
-            RemoveEventHandler(eventSubscriber);
+            RemoveEventSubscriber(eventSubscriber);
         }
 
         void ILiveProfiler.UnregisterEventSubscriber(IProfilerEventSubscriberAsync eventSubscriber)
         {
             if (eventSubscriber == null) throw new ArgumentNullException(nameof(eventSubscriber));
 
-            RemoveEventHandler(eventSubscriber);
+            RemoveEventSubscriber(eventSubscriber);
         }
 
         internal void RegisterEvent(IProfilerEvent stepEvent, Timing step)
@@ -162,9 +162,9 @@ namespace MiddleStack.Profiling
                 }
             }
 
-            foreach (var handlerInfo in _eventHandlerMap.Values)
+            foreach (var subscriberInfo in _eventSubscriberMap.Values)
             {
-                handlerInfo.Queue.Enqueue(stepEvent);
+                subscriberInfo.Queue.Enqueue(stepEvent);
             }
         }
 
@@ -176,72 +176,93 @@ namespace MiddleStack.Profiling
                 ((LiveProfiler)Instance)._recentTransactions.Clear();
             }
 
-            _eventHandlerMap.Clear();
+            _eventSubscriberMap.Clear();
         }
 
-        private void AddEventHandler(object handler)
+        private void AddEventSubscriber(object subscriber)
         {
-            var handlerInfo = new HandlerInfo
+            var subscriberInfo = new SubscriberInfo
             {
                 Queue = new ConcurrentQueue<IProfilerEvent>(),
                 CompletionSource = new TaskCompletionSource<bool>()
             };
 
-            if (_eventHandlerMap.TryAdd(handler, handlerInfo))
+            if (_eventSubscriberMap.TryAdd(subscriber, subscriberInfo))
             {
-                EventLoop(handler, handlerInfo);
+                EventLoop(subscriber, subscriberInfo);
             }
         }
 
-        private void RemoveEventHandler(object handler)
+        private void RemoveEventSubscriber(object subscriber)
         {
-            HandlerInfo handlerInfo;
+            SubscriberInfo subscriberInfo;
 
-            if (_eventHandlerMap.TryRemove(handler, out handlerInfo))
+            if (_eventSubscriberMap.TryRemove(subscriber, out subscriberInfo))
             {
-                handlerInfo.CompletionSource.SetResult(true);
+                subscriberInfo.CompletionSource.SetResult(true);
             }
         }
 
-        private async void EventLoop(object handler, HandlerInfo handlerInfo)
+        private async void EventLoop(object subscriber, SubscriberInfo subscriberInfo)
         {
             await Task.Yield();
 
-            var syncHandler = handler as IProfilerEventSubscriber;
-            var asyncHandler = handler as IProfilerEventSubscriberAsync;
+            var syncSubscriber = subscriber as IProfilerEventSubscriber;
+            var asyncSubscriber = subscriber as IProfilerEventSubscriberAsync;
+
+            try
+            {
+                syncSubscriber?.Start();
+                asyncSubscriber?.Start();
+            }
+            catch (Exception x)
+            {
+                Trace.WriteLine($"LiveProfiler: event subscriber {subscriber.GetType()} threw an exception on Start. Events will not be sent to this subscriber: {x}");
+                return;
+            }
 
             do
             {
                 IProfilerEvent stepEvent;
 
-                while (!handlerInfo.CompletionSource.Task.IsCompleted && handlerInfo.Queue.TryDequeue(out stepEvent))
+                while (!subscriberInfo.CompletionSource.Task.IsCompleted && subscriberInfo.Queue.TryDequeue(out stepEvent))
                 {
                     try
                     {
-                        if (syncHandler != null)
+                        if (syncSubscriber != null)
                         {
-                            syncHandler.HandleEvent(stepEvent);
+                            syncSubscriber.HandleEvent(stepEvent);
                         }
-                        else if (asyncHandler != null)
+                        else if (asyncSubscriber != null)
                         {
-                            await asyncHandler.HandleEventAsync(stepEvent).ConfigureAwait(false);
+                            await asyncSubscriber.HandleEventAsync(stepEvent).ConfigureAwait(false);
                         }
                     }
                     catch (Exception x)
                     {
-                        Trace.WriteLine($"LiveProfiler: event handler {handler.GetType()} threw an exception: {x}");
+                        Trace.WriteLine($"LiveProfiler: event subscriber {subscriber.GetType()} threw an exception: {x}");
                     }
                 }
 
-                if (await Task.WhenAny(handlerInfo.CompletionSource.Task, Task.Delay(EventQueueCheckInterval))
-                        .ConfigureAwait(false) == handlerInfo.CompletionSource.Task)
+                if (await Task.WhenAny(subscriberInfo.CompletionSource.Task, Task.Delay(EventQueueCheckInterval))
+                        .ConfigureAwait(false) == subscriberInfo.CompletionSource.Task)
                 {
+                    try
+                    {
+                        syncSubscriber?.Stop();
+                        asyncSubscriber?.Stop();
+                    }
+                    catch (Exception x)
+                    {
+                        Trace.WriteLine($"LiveProfiler: event subscriber {subscriber.GetType()} threw an exception on Stop: {x}");
+                    }
+
                     return;
                 }
             } while (true);
         }
 
-        private class HandlerInfo
+        private class SubscriberInfo
         {
             public ConcurrentQueue<IProfilerEvent> Queue { get; set; }
             public TaskCompletionSource<bool> CompletionSource { get; set; }

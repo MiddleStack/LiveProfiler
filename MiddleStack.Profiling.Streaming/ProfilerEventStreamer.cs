@@ -19,8 +19,10 @@ namespace MiddleStack.Profiling.Streaming
         private readonly bool _enabled;
         private readonly string _hostName;
         private readonly string _appName;
-        private readonly Task<IHubProxy> _hubProxy;
+        private Task<ConnectionInfo> _connection;
         private int _sending;
+        private TaskCompletionSource<bool> _currentProxyStopFlag;
+        private static readonly TimeSpan ReconnectDelay = TimeSpan.FromSeconds(3);
 
         /// <summary>
         ///     Initializes a new instance of <see cref="ProfilerEventStreamer"/>.
@@ -36,13 +38,9 @@ namespace MiddleStack.Profiling.Streaming
             _hostName = config?.HostName ?? Environment.MachineName;
             _appName = config?.AppName ?? Process.GetCurrentProcess().ProcessName;
 
-            if (_enabled)
-            {
-                _hubProxy = GetHubProxy();
-            }
-        }
+       }
 
-        private async Task<IHubProxy> GetHubProxy()
+        private async Task<ConnectionInfo> GetConnection(Task stopFlag)
         {
             var connection = new HubConnection(_serverUrl.ToString(), new Dictionary<string, string>
             {
@@ -62,25 +60,56 @@ namespace MiddleStack.Profiling.Streaming
                 Interlocked.Exchange(ref _sending, 1);
             });
 
+            connection.Closed += () =>
+            {
+                // Keep on reconnecting, until Stop() is called.
+                if (!stopFlag.IsCompleted)
+                {
+                    Thread.Sleep(ReconnectDelay);
+                    _connection = GetConnection(stopFlag);
+                }
+            };
+
             await connection.Start().ConfigureAwait(false);
 
-            return hubProxy;
+            return new ConnectionInfo
+            {
+                Connection = connection,
+                HubProxy = hubProxy
+            };
         }
 
         public async Task HandleEventAsync(IProfilerEvent stepEvent)
         {
-            if (_sending != 1) return;
+            if (_sending != 1 || !_enabled) return;
 
-            var proxy = await _hubProxy.ConfigureAwait(false);
+            var connection = await _connection.ConfigureAwait(false);
             try
             {
                 var message = ToMessage(stepEvent);
 
-                await proxy.Invoke("event", message).ConfigureAwait(false);
+                await connection.HubProxy.Invoke("event", message).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception x)
             {
-                throw;
+                Trace.WriteLine($"ProfilerEventStreamer: Exception encountered while sending event to server: {x}");
+            }
+        }
+
+        public void Start()
+        {
+            if (_enabled)
+            {
+                _connection = GetConnection((_currentProxyStopFlag = new TaskCompletionSource<bool>()).Task);
+            }
+        }
+
+        public void Stop()
+        {
+            _currentProxyStopFlag?.SetResult(true);
+            if (_connection.IsCompleted && !_connection.IsFaulted)
+            {
+                _connection.Result.Connection.Dispose();
             }
         }
 
@@ -131,6 +160,12 @@ namespace MiddleStack.Profiling.Streaming
                 message.result = stepFinish.Result;
             }
             return message;
+        }
+
+        private class ConnectionInfo
+        {
+            public HubConnection Connection;
+            public IHubProxy HubProxy;
         }
     }
 }

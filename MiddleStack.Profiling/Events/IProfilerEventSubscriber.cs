@@ -31,5 +31,17 @@ namespace MiddleStack.Profiling.Events
         ///     </list>
         /// </param>
         void HandleEvent(IProfilerEvent stepEvent);
+
+        /// <summary>
+        ///     A method that is invoked when LiveProfiler is ready to dispatch events to this instance.
+        /// </summary>
+        void Start();
+
+        /// <summary>
+        ///     A method that is invoked when LiveProfiler has stopped sending events to this instance,
+        ///     such as when this instance has been detached from LiveProfiler by calling 
+        ///     <see cref="ILiveProfiler.UnregisterEventSubscriber(IProfilerEventSubscriber)"/>.
+        /// </summary>
+        void Stop();
     }
 }

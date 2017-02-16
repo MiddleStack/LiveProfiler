@@ -58,12 +58,33 @@ namespace MiddleStack.Profiling.StreamingServer
             }
         }
 
+        public override Task OnReconnected()
+        {
+            var appName = Context.Request.QueryString["appName"];
+            var hostName = Context.Request.QueryString["hostName"];
+
+            _log.Info($"Event source reconnected: {hostName}-{appName}");
+
+            return base.OnReconnected();
+        }
+
+        public override Task OnDisconnected(bool stopCalled)
+        {
+            var appName = Context.Request.QueryString["appName"];
+            var hostName = Context.Request.QueryString["hostName"];
+
+            _log.Info($"Event source disconnected: {hostName}-{appName}");
+
+            return base.OnDisconnected(stopCalled);
+        }
+
         public async Task Event(IDictionary<string, object> eventMessage)
         {
             if ((string)eventMessage["type"] == TransactionStartName)
             {
                 eventMessage["appName"] = Context.Request.QueryString["appName"];
-                eventMessage["hostName"] = Context.Request.QueryString["hostName"];
+                var hostName = Context.Request.QueryString["hostName"];
+                eventMessage["hostName"] = hostName == Environment.MachineName ? "localhost" : hostName;
             }
 
             await EventConsumerHub.PublishEvent(eventMessage).ConfigureAwait(false);

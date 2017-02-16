@@ -12,24 +12,30 @@
     <script src="signalr/hubs"></script>
     <script type="text/javascript">
 //<![CDATA[
+var transactionIndex = 0;
+var transactionTable = {};
+var stepTable = {};
+
 window.onload=function(){
     // register the grid component
-    Vue.component('demo-grid',
+    Vue.component('grid',
     {
         template: '#grid-template',
         props: {
             data: Array,
             columns: Array,
+            headers: Object,
             filterKey: String,
-            headerStyles: Object
+            headerStyles: Object,
+            transactionDetails: Object
         },
         data: function() {
             var sortOrders = {}
             this.columns.forEach(function (key) {
-                sortOrders[key] = key == 'index' ? -1 : 1;
+                sortOrders[key] = key == 'seq' ? -1 : 1;
             });
             return {
-                sortKey: 'index',
+                sortKey: 'seq',
                 sortOrders: sortOrders
             };
         },
@@ -69,29 +75,143 @@ window.onload=function(){
         }
     });
 
-    // bootstrap the demo
+    Vue.component('grid-item',
+    {
+        template: '#grid-item-template',
+        props: {
+            seq: Number,
+            hostName: String,
+            appName: String,
+            duration: String,
+            category: String,
+            displayName: String,
+            id: String,
+            transactionDetails: Object
+        }
+    });
+
+    Vue.component('transaction-details', {
+        template: '#transaction-details-template'
+    });
+
+    // bootstrap the app
 
     var vm = new Vue({
-        el: '#demo',
+        el: '#app',
         data: {
             searchQuery: '',
-            gridColumns: ['index', 'host', 'app', 'duration', 'name'],
+            gridColumns: ['seq', 'host', 'app', 'duration', 'category', 'displayName'],
+            gridHeaders: {
+                seq: 'Seq',
+                host: 'Host',
+                app: 'App',
+                duration: 'Duration',
+                category: 'Category',
+                displayName: 'Name'
+            },
             gridData: [
             ],
             headerStyles: {
-                index: 'width:55px',
+                seq: 'width:55px',
                 host: 'width:100px',
                 app: 'width:100px',
                 duration: 'width:100px',
                 name: 'width:auto'
+            },
+            transactionDetails: {
+                id: null
             }
         }
     });
 
+    function deleteStepsFromTable(steps) {
+        steps.forEach(function(e) {
+            delete stepTable[e.id];
+            deleteStepsFromTable(e.steps);
+        });
+    }
+
     var connection = $.hubConnection();
     var contosoChatHubProxy = connection.createHubProxy('EventConsumerHub');
-    contosoChatHubProxy.on('event', function(evt) {
-        console.log(evt.type);
+    contosoChatHubProxy.on('event', function (evt) {
+        if (evt.type == 'TransactionStart') {
+            transactionIndex++;
+
+            var transaction = {
+                seq: transactionIndex,
+                id: evt.id,
+                correlationId: evt.correlationId,
+                hostName: evt.hostName,
+                appName: evt.appName,
+                category: evt.category,
+                name: evt.name,
+                displayName: evt.displayName,
+                parameters: evt.parameters,
+                start: evt.start,
+                duration: null,
+                steps: []
+            };
+
+            transactionTable[evt.id] = transaction;
+
+            vm.gridData.push(transaction);
+
+            if (vm.gridData.length > 100) {
+                //var firstTransaction = vm.gridData.slice(0);
+                vm.gridData.splice(0, 1);
+                //delete transactionTable[firstTransaction.id];
+
+                //deleteStepsFromTable(firstTransaction.steps);
+            }
+        } else if (evt.type == 'TransactionFinish') {
+            var transaction = transactionTable[evt.id];
+
+            if (transaction) {
+                transaction.duration = evt.duration;
+                transaction.isSuccess = evt.isSuccess;
+                transaction.result = evt.result;
+            } else {
+                console.error('Unable to find transaction with id ' + evt.id);
+            }
+        } else if (evt.type == 'StepStart') {
+            var parent = transactionTable[evt.parentId];
+
+            if (!parent) {
+                parent = stepTable[evt.parentId];
+            }
+
+            if (parent) {
+                var step = {
+                    id: evt.id,
+                    parentId: evt.parentId,
+                    correlationId: evt.correlationId,
+                    category: evt.category,
+                    name: evt.name,
+                    displayName: evt.displayName,
+                    parameters: evt.parameters,
+                    start: evt.start,
+                    relativeStart: evt.relativeStart,
+                    steps: []
+                };
+
+                stepTable[evt.id] = step;
+                parent.steps.unshift(step);
+            } else {
+                console.error('Unable to find transaction or step with id ' + evt.parentId);
+            }
+        } else if (evt.type == 'StepFinish') {
+            var step = stepTable[evt.id];
+
+            if (step) {
+                step.duration = evt.duration;
+                step.isSuccess = evt.isSuccess;
+                step.result = evt.result;
+            } else {
+                console.error('Unable to find step with id ' + evt.id);
+            }
+        } else {
+            console.error('Unrecognized event type: ' + evt.type);
+        }
     });
     connection.start()
         .done(function(){ console.log('Now connected, connection ID=' + connection.id); })
@@ -104,41 +224,87 @@ window.onload=function(){
 
 <body>
     <!-- component template -->
-<script type="text/x-template" id="grid-template">
-        <table>
+    <script type="text/x-template" id="grid-item-template">
+        <tr @click="transactionDetails.id = id">
+            <td>{{seq}}</td>
+            <td>{{hostName}}</td>
+            <td>{{appName}}</td>
+            <td>{{duration}}</td>
+            <td>{{category}}</td>
+            <td>{{displayName}}</td>
+        </tr>
+    </script>
+    <script type="text/x-template" id="grid-template">
+        <table id="transactions">
             <thead>
                 <tr>
                     <th v-for="key in columns"
                         @click="sortBy(key)"
                         :class="{ active: sortKey == key }"
-                        :style="'width:' + (key == 'index' ? '55px' : (key == 'name' ? 'auto' : '100px'))">
-                        {{ key | capitalize }}
+                        :style="'width:' + (key == 'seq' ? '55px' : (key == 'displayName' ? 'auto' : '100px'))">
+                        {{ headers[key] }}
                         <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
                         </span>
                     </th>
                 </tr>  
             </thead>
             <tbody>
-                <tr v-for="entry in filteredData">
-                    <td v-for="key in columns">
-                        {{entry[key]}}
-                    </td>
-                </tr>
+                <tr is="grid-item" 
+                    v-for="entry in filteredData" 
+                    :key="entry.seq" 
+                    :id="entry.id"
+                    :seq="entry.seq"
+                    :hostName="entry.hostName"
+                    :appName="entry.appName"
+                    :duration="entry.duration"
+                    :category="entry.category"
+                    :displayName="entry.displayName"
+                    :transaction-details="transactionDetails"></tr>
             </tbody>
         </table>
     </script>
 
-    <!-- demo root element -->
-    <div id="demo">
+    <script type="text/x-template" id="transaction-details-template">
+        <transition name="transaction-details">
+            <div class="modal-mask">
+                <div class="modal-wrapper">
+                    <div class="modal-container">
+                        <div class="modal-header">
+                            <slot name="header">
+                                default header
+                            </slot>
+                        </div>
+                        <div class="modal-body">
+                            <slot name="body">
+                                default body
+                            </slot>
+                        </div>
+                        <div class="modal-footer">
+                            <slot name="footer">
+                                default footer
+                                <button class="modal-default-button" @click="$emit('close')">Close</button>
+                            </slot>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+    </script>
+
+    <!-- app root element -->
+    <div id="app">
         <form id="search">
             Search <input name="query" v-model="searchQuery">
         </form>
-        <demo-grid :data="gridData"
-                   :columns="gridColumns"
-                   :filter-key="searchQuery"
-                   :headerStyles="headerStyles"
-                   style="width:100%">
-        </demo-grid>
+        <grid :data="gridData"
+              :columns="gridColumns"
+              :headers="gridHeaders"
+              :filter-key="searchQuery"
+              :transaction-details="transactionDetails"
+              :header-styles="headerStyles"
+              style="width: 100%">
+        </grid>
+        <transaction-details v-if="transactionDetails.id" @close="transactionDetails.id = null"></transaction-details>
     </div>
 </body>
 </html>

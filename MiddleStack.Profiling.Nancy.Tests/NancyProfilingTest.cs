@@ -117,7 +117,7 @@ namespace MiddleStack.Profiling.Nancy.Tests
 
             Trace.WriteLine(json);
 
-            transaction.Category.Should().Be("Nancy.Request");
+            transaction.Category.Should().Be("Nancy");
             transaction.Name.Should().Be("GET " + TestingModule.GetPath);
             transaction.DisplayName.Should().Be("GET " + url);
             transaction.CorrelationId.Should().Be(CorrelationId);
@@ -158,7 +158,7 @@ namespace MiddleStack.Profiling.Nancy.Tests
 
             Trace.WriteLine(json);
 
-            transaction.Category.Should().Be("Nancy.Request");
+            transaction.Category.Should().Be("Nancy");
             transaction.Name.Should().Be("GET " + TestingModule.GetPath);
             transaction.DisplayName.Should().Be("GET " + url);
             transaction.CorrelationId.Should().Be(CorrelationId);
@@ -199,7 +199,7 @@ namespace MiddleStack.Profiling.Nancy.Tests
 
             Trace.WriteLine(json);
 
-            transaction.Category.Should().Be("Nancy.Request");
+            transaction.Category.Should().Be("Nancy");
             transaction.Name.Should().Be("GET " + TestingModule.GetPath);
             transaction.DisplayName.Should().Be("GET " + url);
             transaction.CorrelationId.Should().Be(CorrelationId);
@@ -240,7 +240,7 @@ namespace MiddleStack.Profiling.Nancy.Tests
 
             Trace.WriteLine(json);
 
-            transaction.Category.Should().Be("Nancy.Request");
+            transaction.Category.Should().Be("Nancy");
             transaction.Name.Should().Be("GET " + TestingModule.GetPath);
             transaction.DisplayName.Should().Be("GET " + url);
             transaction.CorrelationId.Should().Be(CorrelationId);
@@ -278,7 +278,7 @@ namespace MiddleStack.Profiling.Nancy.Tests
 
             Trace.WriteLine(json);
 
-            transaction.Category.Should().Be("Nancy.Request");
+            transaction.Category.Should().Be("Nancy");
             transaction.Name.Should().Be("POST " + TestingModule.PostPath);
             transaction.DisplayName.Should().Be("POST " + url);
             transaction.CorrelationId.Should().Be(CorrelationId);
@@ -323,7 +323,7 @@ namespace MiddleStack.Profiling.Nancy.Tests
 
             Trace.WriteLine(json);
 
-            transaction.Category.Should().Be("Nancy.Request");
+            transaction.Category.Should().Be("Nancy");
             transaction.Name.Should().Be("POST " + TestingModule.PostPath);
             transaction.DisplayName.Should().Be("POST " + url);
             transaction.CorrelationId.Should().Be(CorrelationId);
@@ -368,7 +368,7 @@ namespace MiddleStack.Profiling.Nancy.Tests
 
             Trace.WriteLine(json);
 
-            transaction.Category.Should().Be("Nancy.Request");
+            transaction.Category.Should().Be("Nancy");
             transaction.Name.Should().Be("POST " + TestingModule.PostPath);
             transaction.DisplayName.Should().Be("POST " + url);
             transaction.CorrelationId.Should().Be(CorrelationId);

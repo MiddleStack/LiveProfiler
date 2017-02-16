@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>LiveProfiler</id>
-    <version>0.2.11</version>
+    <version>0.2.12</version>
     <authors>Tony Chow</authors>
     <owners>Tony Chow</owners>
     <description>Lightweight profiler that supports async and parallelism in code, and features an extensible API.</description>
