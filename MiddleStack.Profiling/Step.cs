@@ -9,7 +9,7 @@ using MiddleStack.Profiling.Events;
 
 namespace MiddleStack.Profiling
 {
-    internal class Step: Timing
+    internal class Step: Timing, IStepInfo
     {
         public Step(LiveProfiler profiler, string category, string name, string displayName, object parameters, Timing parent) 
             : base(profiler, category, name, displayName, parameters, parent)
@@ -18,6 +18,7 @@ namespace MiddleStack.Profiling
             RelativeStart = (stepParent?.RelativeStart ?? TimeSpan.Zero) + (parent?.Elapsed ?? TimeSpan.Zero);
         }
 
+        public override TimingType Type => TimingType.Step;
         public override object SyncRoot => Transaction.SyncRoot;
         public override int Version => Transaction.Version;
         public override int IncrementVersion()

@@ -8,7 +8,7 @@ using MiddleStack.Profiling.Events;
 
 namespace MiddleStack.Profiling
 {
-    internal class Transaction: Timing
+    internal class Transaction: Timing, ITransactionInfo
     {
         private int _version;
         private static int _sequenceSeed;
@@ -20,6 +20,7 @@ namespace MiddleStack.Profiling
             Sequence = Interlocked.Increment(ref _sequenceSeed);
         }
 
+        public override TimingType Type => TimingType.Transaction;
         public int Sequence { get; }
         public string CorrelationId { get; }
         public override object SyncRoot { get; } = new object();

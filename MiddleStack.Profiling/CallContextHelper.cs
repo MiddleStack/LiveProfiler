@@ -16,7 +16,7 @@ namespace MiddleStack.Profiling
             CallContext.LogicalSetData(CurrentStepKey, step);
         }
 
-        public static Timing GetCurrentStep()
+        public static Timing GetCurrentTiming()
         {
             return CallContext.LogicalGetData(CurrentStepKey) as Timing;
         }

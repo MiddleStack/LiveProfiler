@@ -30,16 +30,17 @@ namespace MiddleStack.Profiling
         /// </value>
         public static ILiveProfiler Instance { get; } = new LiveProfiler();
 
-        ITiming ILiveProfiler.Step(string category, string name, string displayName, object parameters)
+        ITiming ILiveProfiler.Step(string category, string name, string displayName, object parameters, Func<IProfilerContext, bool> predicate)
         {
             if (String.IsNullOrWhiteSpace(category)) throw new ArgumentNullException(nameof(category));
             if (String.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
 
-            var currentStep = CallContextHelper.GetCurrentStep();
+            var currentTiming = CallContextHelper.GetCurrentTiming();
 
-            if (currentStep != null)
+            if (currentTiming != null
+                && (predicate == null || predicate(new ProfilerContext(currentTiming))))
             {
-                var step = DoStep(category, name, displayName, parameters, currentStep);
+                var step = DoStep(category, name, displayName, parameters, currentTiming);
 
                 if (step != null)
                 {
@@ -72,7 +73,7 @@ namespace MiddleStack.Profiling
             if (String.IsNullOrWhiteSpace(category)) throw new ArgumentNullException(nameof(category));
             if (String.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
 
-            var currentStep = CallContextHelper.GetCurrentStep();
+            var currentStep = CallContextHelper.GetCurrentTiming();
 
             if (currentStep != null && currentStep.State == TransactionState.Inflight && mode == TransactionMode.New)
             {

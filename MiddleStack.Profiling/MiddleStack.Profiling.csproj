@@ -47,7 +47,13 @@
   <ItemGroup>
     <Compile Include="Events\ProfilerEventType.cs" />
     <Compile Include="InertTiming.cs" />
+    <Compile Include="IProfilerContext.cs" />
+    <Compile Include="IStepInfo.cs" />
+    <Compile Include="ITimingInfo.cs" />
+    <Compile Include="ITransactionInfo.cs" />
+    <Compile Include="ProfilerCOntext.cs" />
     <Compile Include="Testing\LiveProfilerTestingExtensions.cs" />
+    <Compile Include="TimingType.cs" />
     <Compile Include="TransactionMode.cs" />
     <Compile Include="TransactionState.cs" />
     <Compile Include="LiveProfiler.cs" />

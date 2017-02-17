@@ -43,6 +43,12 @@ namespace MiddleStack.Profiling
         ///     Optional. The parameters with which this step is initialized. This should be a simple object
         ///     that is JSON-serializable, and its state should not change after this call.
         /// </param>
+        /// <param name="predicate">
+        ///     A predicate that can be used to determine whether a step is actually created. If specified and
+        ///     returns <see langword="false"/> no step is created, and the return value is a placeholder instance
+        ///     that doesn't do anything. If specified and returns <see langword="true"/> the step is created as 
+        ///     normal.
+        /// </param>
         /// <returns>
         ///     An <see cref="ITiming"/> object which, when disposed, marks this step as finished.
         ///     It can also be used to access the current state of the transaction. If no step is created, 
@@ -53,7 +59,7 @@ namespace MiddleStack.Profiling
         ///     <para>-or-</para>
         ///     <para>The argument <paramref name="name"/> is <see langword="null"/> or empty.</para>
         /// </exception>
-        ITiming Step(string category, string name, string displayName = null, object parameters = null);
+        ITiming Step(string category, string name, string displayName = null, object parameters = null, Func<IProfilerContext, bool> predicate = null);
 
         /// <summary>
         ///     Start a new transaction, if there is no inflight transaction.  If there is already an inflight exception

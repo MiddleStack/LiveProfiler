@@ -10,7 +10,7 @@ using MiddleStack.Profiling.Events;
 
 namespace MiddleStack.Profiling
 {
-    internal abstract class Timing: ITiming
+    internal abstract class Timing: ITiming, ITimingInfo
     {
         private readonly LiveProfiler _profiler;
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
@@ -175,5 +175,6 @@ namespace MiddleStack.Profiling
         }
 
         public abstract TransactionSnapshot GetTransactionSnapshot();
+        public abstract TimingType Type { get; }
     }
 }
