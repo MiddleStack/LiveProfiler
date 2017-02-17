@@ -5,15 +5,14 @@
 }
 
 table {
-  border: 2px solid #42b983;
+  border: 2px solid grey;
   border-radius: 3px;
   background-color: #fff;
 }
 
 th {
-  background-color: #42b983;
+  background-color: grey;
   color: rgba(255,255,255,0.66);
-  cursor: pointer;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -36,7 +35,7 @@ th.active .arrow {
   opacity: 1;
 }
 
-table#transactions tr {
+table#transactions tr td {
     cursor: pointer
 }
 
@@ -79,23 +78,29 @@ table#transactions tr {
 }
 
 .modal-container {
-  width: 300px;
-  margin: 0px auto;
-  padding: 20px 30px;
-  background-color: #fff;
-  border-radius: 2px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
-  transition: all .3s ease;
-  font-family: Helvetica, Arial, sans-serif;
+    width: 800px;
+    margin: 0px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 2px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
+    transition: all .3s ease;
+    font-family: Helvetica, Arial, sans-serif;
+    height: 90%;
 }
 
+.modal-footer {
+    padding-bottom: 20px;
+}
 .modal-header h3 {
   margin-top: 0;
-  color: #42b983;
+  color: grey;
 }
 
 .modal-body {
-  margin: 20px 0;
+    margin: 20px 0;
+    height: 700px;
+    overflow-y: auto;
 }
 
 .modal-default-button {
@@ -123,4 +128,160 @@ table#transactions tr {
 .modal-leave-active .modal-container {
   -webkit-transform: scale(1.1);
   transform: scale(1.1);
+}
+
+.successIcon {
+    background-image: url("../images/success.gif");
+    background-size: 16px 16px;
+    background-repeat: no-repeat;
+    height: 16px;
+    width: 16px;
+    float: left;
+    margin-right: 6px;
+}
+
+.failureIcon {
+    background-image: url("../images/failure.gif");
+    background-size: 16px 16px;
+    background-repeat: no-repeat;
+    height: 16px;
+    width: 16px;
+    float: left;
+    margin-right: 6px;
+}
+
+.progressIcon {
+    background-image: url("../images/progress.gif");
+    background-size: 16px 16px;
+    background-repeat: no-repeat;
+    height: 16px;
+    width: 16px;
+    float: left;
+    margin-right: 6px;
+}
+
+.transactionName {
+    font-weight: bold;
+    font-size: 1.3em;
+    display: inline-block;
+}
+
+.stepName {
+    font-weight: bold;
+    display: inline-block;
+}
+
+.expandable {
+    cursor: pointer;
+    display: inline-block;
+}
+
+.propertyName {
+    font-weight: bold
+}
+
+ul {
+  padding-left: 1em;
+  line-height: 1.5em;
+  list-style-type: dot;
+}
+
+li {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.propertyBullet {
+    list-style: none;
+}
+
+.propertyBullet:before {
+    content: '';
+    display: inline-block;
+    height: 16px;
+    width: 20px;
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+    background-image: url('../images/property.gif');
+    vertical-align: top;
+}
+
+.bulletProgress {
+    list-style: none;
+}
+
+.bulletProgress:before {
+    content: '';
+    display: inline-block;
+    height: 16px;
+    width: 20px;
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+    background-image: url('../images/progress.gif');
+}
+
+.bulletSuccess {
+    list-style: none;
+}
+
+.bulletSuccess:before {
+    content: '';
+    display: inline-block;
+    height: 16px;
+    width: 20px;
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+    background-image: url('../images/success.gif');
+}
+
+.bulletFailure {
+    list-style: none;
+}
+
+.bulletFailure:before {
+    content: '';
+    display: inline-block;
+    height: 16px;
+    width: 20px;
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+    background-image: url('../images/failure.gif');
+}
+
+.bulletSteps {
+    list-style: none;
+}
+
+.bulletSteps:before {
+    content: '';
+    display: inline-block;
+    height: 16px;
+    width: 20px;
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+    background-position: 0 0;
+    background-image: url('../images/step.gif');
+}
+
+.bullet-document {
+    list-style: none;
+}
+
+.bullet-document:before {
+    content: '';
+    display: inline-block;
+    height: 16px;
+    width: 20px;
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+    background-image: url('../images/document.gif');
+    vertical-align: top;
+}
+
+.obj {
+}
+
+.obj-property {
+    display: inline-block;
 }

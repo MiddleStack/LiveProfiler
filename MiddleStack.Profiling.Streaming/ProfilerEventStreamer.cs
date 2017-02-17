@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNet.SignalR.Client;
 using MiddleStack.Profiling.Events;
+using Newtonsoft.Json;
 
 namespace MiddleStack.Profiling.Streaming
 {
@@ -71,6 +72,8 @@ namespace MiddleStack.Profiling.Streaming
             };
 
             await connection.Start().ConfigureAwait(false);
+
+            hubProxy.JsonSerializer.NullValueHandling = NullValueHandling.Ignore;
 
             return new ConnectionInfo
             {

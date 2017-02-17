@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>LiveProfiler.Streaming</id>
-    <version>0.2.14</version>
+    <version>0.2.15</version>
     <authors>Tony Chow</authors>
     <owners>Tony Chow</owners>
     <description>An extension to LiveProfiler that streams profiler events to a real time monitoring server.</description>

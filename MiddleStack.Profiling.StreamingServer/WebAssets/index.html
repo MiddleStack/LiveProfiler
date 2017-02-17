@@ -41,22 +41,13 @@ window.onload=function(){
         },
         computed: {
             filteredData: function() {
-                var sortKey = this.sortKey;
                 var filterKey = this.filterKey && this.filterKey.toLowerCase();
-                var order = this.sortOrders[sortKey] || 1;
                 var data = this.data;
                 if (filterKey) {
                     data = data.filter(function(row) {
                         return Object.keys(row).some(function(key) {
                             return String(row[key]).toLowerCase().indexOf(filterKey) > -1;
                         });
-                    });
-                }
-                if (sortKey) {
-                    data = data.slice().sort(function(a, b) {
-                        a = a[sortKey];
-                        b = b[sortKey];
-                        return (a === b ? 0 : a > b ? 1 : -1) * order;
                     });
                 }
                 return data;
@@ -68,10 +59,6 @@ window.onload=function(){
             }
         },
         methods: {
-            sortBy: function(key) {
-                this.sortKey = key;
-                this.sortOrders[key] = this.sortOrders[key] * -1;
-            }
         }
     });
 
@@ -79,19 +66,84 @@ window.onload=function(){
     {
         template: '#grid-item-template',
         props: {
-            seq: Number,
-            hostName: String,
-            appName: String,
-            duration: String,
-            category: String,
-            displayName: String,
-            id: String,
+            transaction: Object,
+            statusIconClass: String,
             transactionDetails: Object
         }
     });
 
     Vue.component('transaction-details', {
-        template: '#transaction-details-template'
+        template: '#transaction-details-template',
+        props: {
+            transactionTable: Object,
+            transactionId: String
+        }
+    });
+
+    Vue.component('transaction',
+    {
+        template: '#transaction-template',
+        props: {
+            model: Object
+        },
+        data: function() {
+            return {
+                open: true,
+                stepsOpen: false,
+                parametersOpen: false,
+                resultOpen: false
+            }
+        },
+        methods: {
+            toggle: function() {
+                this.open = !this.open;
+            },
+            toggleSteps: function () {
+                this.stepsOpen = !this.stepsOpen;
+            },
+            toggleParameters: function () {
+                this.parametersOpen = !this.parametersOpen;
+            },
+            toggleResult: function () {
+                this.resultOpen = !this.resultOpen;
+            }
+        }
+    });
+
+    Vue.component('step',
+    {
+        template: '#step-template',
+        props: {
+            model: Object
+        },
+        data: function () {
+            return {
+                open: false,
+                stepsOpen: false,
+                parametersOpen: false,
+                resultOpen: false
+            }
+        },
+        methods: {
+            toggle: function () {
+                this.open = !this.open;
+            },
+            toggleSteps: function () {
+                this.stepsOpen = !this.stepsOpen;
+            },
+            toggleParameters: function () {
+                this.parametersOpen = !this.parametersOpen;
+            },
+            toggleResult: function () {
+                this.resultOpen = !this.resultOpen;
+            }
+        }
+    });
+
+    Vue.component('obj',
+    {
+        template: '#obj-template',
+        props: ['model', 'name']
     });
 
     // bootstrap the app
@@ -120,7 +172,8 @@ window.onload=function(){
             },
             transactionDetails: {
                 id: null
-            }
+            },
+            transactionTable: transactionTable
         }
     });
 
@@ -149,16 +202,20 @@ window.onload=function(){
                 parameters: evt.parameters,
                 start: evt.start,
                 duration: null,
+                isFinished: false,
+                isSuccess: null,
+                result: null,
+                timeReceived: new Date(),
                 steps: []
             };
 
             transactionTable[evt.id] = transaction;
 
-            vm.gridData.push(transaction);
+            vm.gridData.unshift(transaction);
 
             if (vm.gridData.length > 100) {
                 //var firstTransaction = vm.gridData.slice(0);
-                vm.gridData.splice(0, 1);
+                vm.gridData.splice(-1);
                 //delete transactionTable[firstTransaction.id];
 
                 //deleteStepsFromTable(firstTransaction.steps);
@@ -170,6 +227,7 @@ window.onload=function(){
                 transaction.duration = evt.duration;
                 transaction.isSuccess = evt.isSuccess;
                 transaction.result = evt.result;
+                transaction.isFinished = true;
             } else {
                 console.error('Unable to find transaction with id ' + evt.id);
             }
@@ -191,11 +249,20 @@ window.onload=function(){
                     parameters: evt.parameters,
                     start: evt.start,
                     relativeStart: evt.relativeStart,
+                    duration: null,
+                    isSuccess: null,
+                    result: null,
+                    isFinished: false,
+                    timeReceived: new Date(),
                     steps: []
                 };
 
                 stepTable[evt.id] = step;
                 parent.steps.unshift(step);
+
+                if (step.category == 'MongoDB') {
+                    console.info('MongoDB step started id: ' + step.id);
+                }
             } else {
                 console.error('Unable to find transaction or step with id ' + evt.parentId);
             }
@@ -206,6 +273,11 @@ window.onload=function(){
                 step.duration = evt.duration;
                 step.isSuccess = evt.isSuccess;
                 step.result = evt.result;
+                step.isFinished = true;
+
+                if (step.category == 'MongoDB') {
+                    console.info('MongoDB step finished id: ' + step.id);
+                }
             } else {
                 console.error('Unable to find step with id ' + evt.id);
             }
@@ -225,13 +297,13 @@ window.onload=function(){
 <body>
     <!-- component template -->
     <script type="text/x-template" id="grid-item-template">
-        <tr @click="transactionDetails.id = id">
-            <td>{{seq}}</td>
-            <td>{{hostName}}</td>
-            <td>{{appName}}</td>
-            <td>{{duration}}</td>
-            <td>{{category}}</td>
-            <td>{{displayName}}</td>
+        <tr @click="transactionDetails.id = transaction.id">
+            <td><div :class="statusIconClass"></div>{{transaction.seq}}</td>
+            <td>{{transaction.hostName}}</td>
+            <td>{{transaction.appName}}</td>
+            <td>{{transaction.duration}}</td>
+            <td>{{transaction.category}}</td>
+            <td>{{transaction.displayName || transaction.name}}</td>
         </tr>
     </script>
     <script type="text/x-template" id="grid-template">
@@ -239,49 +311,40 @@ window.onload=function(){
             <thead>
                 <tr>
                     <th v-for="key in columns"
-                        @click="sortBy(key)"
-                        :class="{ active: sortKey == key }"
+                        :class="'active'"
                         :style="'width:' + (key == 'seq' ? '55px' : (key == 'displayName' ? 'auto' : '100px'))">
                         {{ headers[key] }}
-                        <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
-                        </span>
                     </th>
                 </tr>  
             </thead>
             <tbody>
                 <tr is="grid-item" 
-                    v-for="entry in filteredData" 
-                    :key="entry.seq" 
-                    :id="entry.id"
-                    :seq="entry.seq"
-                    :hostName="entry.hostName"
-                    :appName="entry.appName"
-                    :duration="entry.duration"
-                    :category="entry.category"
-                    :displayName="entry.displayName"
+                    v-for="transaction in filteredData" 
+                    :transaction="transaction" 
+                    :statusIconClass="transaction.isFinished ? (transaction.isSuccess ? 'successIcon' : 'failureIcon') : 'progressIcon'"
                     :transaction-details="transactionDetails"></tr>
             </tbody>
         </table>
     </script>
 
-    <script type="text/x-template" id="transaction-details-template">
+<script type="text/x-template" id="transaction-details-template">
         <transition name="transaction-details">
             <div class="modal-mask">
                 <div class="modal-wrapper">
                     <div class="modal-container">
                         <div class="modal-header">
                             <slot name="header">
-                                default header
+                                <h3>Transaction Details</h3>
                             </slot>
                         </div>
                         <div class="modal-body">
-                            <slot name="body">
-                                default body
-                            </slot>
+                            <ul>
+                                <transaction :model="transactionTable[transactionId]">
+                                </transaction>
+                            </ul>
                         </div>
                         <div class="modal-footer">
                             <slot name="footer">
-                                default footer
                                 <button class="modal-default-button" @click="$emit('close')">Close</button>
                             </slot>
                         </div>
@@ -291,7 +354,103 @@ window.onload=function(){
         </transition>
     </script>
 
-    <!-- app root element -->
+<script type="text/x-template" id="transaction-template">
+        <li :class="model.isFinished ? (model.isSuccess ? 'bulletSuccess' : 'bulletFailure'): 'bulletProgress'">
+            <span class="transactionName">
+                {{model.displayName ? model.displayName : model.name}}
+            </span>
+            <ul v-show="open">
+                <li v-if="model.hostName" class="propertyBullet"><span class="propertyName">Host</span>: {{model.hostName}}</li>
+                <li v-if="model.appName" class="propertyBullet"><span class="propertyName">App</span>: {{model.appName}}</li>
+                <li v-if="model.id" class="propertyBullet"><span class="propertyName">Id</span>: {{model.id}}</li>
+                <li v-if="model.correlationId" class="propertyBullet"><span class="propertyName">Correlation Id</span>: {{model.correlationId}}</li>
+                <li v-if="model.category" class="propertyBullet"><span class="propertyName">Category</span>: {{model.category}}</li>
+                <li v-if="model.name" class="propertyBullet"><span class="propertyName">Name</span>: {{model.name}}</li>
+                <li v-if="model.displayName" class="propertyBullet"><span class="propertyName">Display Name</span>: {{model.displayName}}</li>
+                <li v-if="model.duration" class="propertyBullet"><span class="propertyName">Duration</span>: {{model.duration}}</li>
+                <li v-if="model.parameters" class="bullet-document">
+                    <div class="propertyName expandable" @click="toggleParameters">
+                        Parameters <span>[{{parametersOpen ? '-' : '+'}}]</span>
+                    </div>
+                    <obj :model="model.parameters" v-if="parametersOpen"></obj>
+                </li>
+                <li v-if="model.result" class="bullet-document">
+                    <div class="propertyName expandable" @click="toggleResult">
+                        Result <span>[{{resultOpen ? '-' : '+'}}]</span>
+                    </div>
+                    <obj :model="model.result" v-if="resultOpen"></obj>
+                </li>
+                <li v-if="model.steps.length > 0" class="bulletSteps">
+                    <div @click="toggleSteps" class="expandable">
+                        <span class="propertyName">Steps</span> ({{model.steps.length}}) <span>[{{stepsOpen ? '-' : '+'}}]</span>
+                    </div>
+                    <ul v-show="stepsOpen">
+                        <step
+                              v-for="step in model.steps"
+                              :model="step">
+                        </step>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </script>
+
+<script type="text/x-template" id="step-template">
+        <li :class="model.isFinished ? (model.isSuccess ? 'bulletSuccess' : 'bulletFailure'): 'bulletProgress'">
+            <div class="stepName expandable" @click="toggle">
+                {{model.displayName ? model.displayName : model.name}}
+                <span>[{{open ? '-' : '+'}}]</span>
+            </div>
+            <ul v-show="open">
+                <li v-if="model.id" class="propertyBullet"><span class="propertyName">Id</span>: {{model.id}}</li>
+                <li v-if="model.category" class="propertyBullet"><span class="propertyName">Category</span>: {{model.category}}</li>
+                <li v-if="model.name" class="propertyBullet"><span class="propertyName">Name</span>: {{model.name}}</li>
+                <li v-if="model.displayName" class="propertyBullet"><span class="propertyName">Display Name</span>: {{model.displayName}}</li>
+                <li v-if="model.duration" class="propertyBullet"><span class="propertyName">Duration</span>: {{model.duration}}</li>
+                <li v-if="model.parameters" class="bullet-document">
+                    <div class="propertyName expandable" @click="toggleParameters">
+                        Parameters <span>[{{parametersOpen ? '-' : '+'}}]</span>
+                    </div>
+                    <obj :model="model.parameters" v-if="parametersOpen"></obj>
+                </li>
+                <li v-if="model.result" class="bullet-document">
+                    <div class="propertyName expandable" @click="toggleResult">
+                        Result <span>[{{resultOpen ? '-' : '+'}}]</span>
+                    </div>
+                    <obj :model="model.result" v-if="resultOpen"></obj>
+                </li>
+                <li v-if="model.steps.length > 0" class="bulletSteps">
+                    <div @click="toggleSteps" class="expandable">
+                        <span class="propertyName">Steps</span> ({{model.steps.length}}) <span>[{{stepsOpen ? '-' : '+'}}]</span>
+                    </div>
+                    <ul v-show="stepsOpen">
+                        <step
+                              v-for="step in model.steps"
+                              :model="step">
+                        </step>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </script>
+
+    <script type="text/x-template" id="obj-template">
+        <div :class="name ? 'obj-property' : 'obj'" v-if="model">
+            <span v-if="typeof model !== 'object'">
+                <span class="propertyName">{{name}}</span>: {{model}}
+            </span>
+            <span v-if="typeof model === 'object' && name">
+                <span class="propertyName">{{name}}</span>
+            </span>
+            <ul v-if="typeof model === 'object'">
+                <li class="propertyBullet" v-for="(propertyValue, propertyName) in model" v-if="propertyValue && propertyName">
+                    <obj :model="propertyValue" :name="propertyName"></obj>
+                </li>
+            </ul>
+        </div>
+    </script>
+
+<!-- app root element -->
     <div id="app">
         <form id="search">
             Search <input name="query" v-model="searchQuery">
@@ -304,7 +463,12 @@ window.onload=function(){
               :header-styles="headerStyles"
               style="width: 100%">
         </grid>
-        <transaction-details v-if="transactionDetails.id" @close="transactionDetails.id = null"></transaction-details>
+        <transaction-details
+            v-if="transactionDetails.id" 
+            @close="transactionDetails.id = null"
+            :transaction-table="transactionTable" 
+            :transaction-id="transactionDetails.id">
+        </transaction-details>
     </div>
 </body>
 </html>
