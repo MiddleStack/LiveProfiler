@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>LiveProfiler.PerfCounters</id>
-    <version>0.2.16</version>
+    <version>0.2.17</version>
     <authors>Tony Chow</authors>
     <owners>Tony Chow</owners>
     <description>An extension to LiveProfiler that turns transactions and steps metrics into
