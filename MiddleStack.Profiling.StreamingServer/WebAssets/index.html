@@ -9,12 +9,23 @@
     <title>LiveProfiler</title>
     <script src="scripts/jquery-1.6.4.min.js"></script>
     <script src="scripts/jquery.signalR-2.2.1.min.js"></script>
+    <script src="scripts/TimeSpan-1.2.min.js"></script>
+    <script src="scripts/numeral/numeral.min.js"></script>
     <script src="signalr/hubs"></script>
     <script type="text/javascript">
 //<![CDATA[
 var transactionIndex = 0;
 var transactionTable = {};
+var inflightTimingsTable = {};
 var stepTable = {};
+var correlationCellStyles = [
+    'background-color:#00ccff',
+    'background-color:#ccccff',
+    'background-color:#ffcc99',
+    'background-color:#ffffcc'
+];
+var correlationCellStyleTable = {};
+var correlationCellStyleIndex = 0;
 
 window.onload=function(){
     // register the grid component
@@ -190,6 +201,17 @@ window.onload=function(){
         if (evt.type == 'TransactionStart') {
             transactionIndex++;
 
+            var correlationCellStyle = correlationCellStyleTable[evt.id];
+
+            if (correlationCellStyle) {
+                correlationCellStyle.count++;
+            } else {
+                correlationCellStyle = {
+                    style: correlationCellStyles[(correlationCellStyleIndex++) % correlationCellStyles.length],
+                    count: 1
+                };
+            }
+
             var transaction = {
                 seq: transactionIndex,
                 id: evt.id,
@@ -202,6 +224,7 @@ window.onload=function(){
                 parameters: evt.parameters,
                 start: evt.start,
                 duration: null,
+                ownDuration: null,
                 isFinished: false,
                 isSuccess: null,
                 result: null,
@@ -210,6 +233,7 @@ window.onload=function(){
             };
 
             transactionTable[evt.id] = transaction;
+            inflightTimingsTable[evt.id] = transaction;
 
             vm.gridData.unshift(transaction);
 
@@ -222,9 +246,21 @@ window.onload=function(){
             }
         } else if (evt.type == 'TransactionFinish') {
             var transaction = transactionTable[evt.id];
+            delete inflightTimingsTable[evt.id];
+
+            var correlationCellStyle = correlationCellStyleTable[evt.id];
+
+            if (correlationCellStyle) {
+                correlationCellStyle.count--;
+
+                if (correlationCellStyle.count < 1) {
+                    delete correlationCellStyleTable[evt.id];
+                }
+            }
 
             if (transaction) {
                 transaction.duration = evt.duration;
+                transaction.ownDuration = evt.ownDuration;
                 transaction.isSuccess = evt.isSuccess;
                 transaction.result = evt.result;
                 transaction.isFinished = true;
@@ -250,6 +286,7 @@ window.onload=function(){
                     start: evt.start,
                     relativeStart: evt.relativeStart,
                     duration: null,
+                    ownDuration: null,
                     isSuccess: null,
                     result: null,
                     isFinished: false,
@@ -258,6 +295,7 @@ window.onload=function(){
                 };
 
                 stepTable[evt.id] = step;
+                inflightTimingsTable[evt.id] = step;
                 parent.steps.unshift(step);
 
                 if (step.category == 'MongoDB') {
@@ -268,9 +306,11 @@ window.onload=function(){
             }
         } else if (evt.type == 'StepFinish') {
             var step = stepTable[evt.id];
+            delete inflightTimingsTable[evt.id];
 
             if (step) {
                 step.duration = evt.duration;
+                step.ownDuration = evt.ownDuration;
                 step.isSuccess = evt.isSuccess;
                 step.result = evt.result;
                 step.isFinished = true;
@@ -287,7 +327,31 @@ window.onload=function(){
     });
     connection.start()
         .done(function(){ console.log('Now connected, connection ID=' + connection.id); })
-        .fail(function(){ console.log('Could not connect'); });
+        .fail(function () { console.log('Could not connect'); });
+
+    // Update duration once every second.
+    var updateDurations = function() {
+        for (var id in inflightTimingsTable) {
+            var timing = inflightTimingsTable[id];
+
+            if (!timing.isFinished) {
+                var duration = TimeSpan.FromDates(timing.timeReceived, new Date());
+                var durationStr = ('000' + duration.milliseconds()).slice(-3);
+                durationStr = ('00' + duration.seconds()).slice(-3) + '.' + durationStr;
+                durationStr = ('00' + duration.minutes()).slice(-2) + ':' + durationStr;
+                durationStr = ('00' + duration.hours()).slice(-2) + ':' + durationStr;
+                var days = duration.days();
+                if (days > 0) {
+                    durationStr = ('00' + numeral(days)).slice(-2) + ':' + durationStr;
+                }
+                timing.duration = durationStr;
+            }
+        }
+
+        setTimeout(updateDurations, 1000);
+    };
+
+    setTimeout(updateDurations, 1000);
 }
 //]]>
 
@@ -298,12 +362,12 @@ window.onload=function(){
     <!-- component template -->
     <script type="text/x-template" id="grid-item-template">
         <tr @click="transactionDetails.id = transaction.id">
-            <td><div :class="statusIconClass"></div>{{transaction.seq}}</td>
-            <td>{{transaction.hostName}}</td>
-            <td>{{transaction.appName}}</td>
-            <td>{{transaction.duration}}</td>
-            <td>{{transaction.category}}</td>
-            <td>{{transaction.displayName || transaction.name}}</td>
+            <td :style="transaction.cellStyle"><div :class="statusIconClass"></div>{{transaction.seq}}</td>
+            <td :style="transaction.cellStyle">{{transaction.hostName}}</td>
+            <td :style="transaction.cellStyle">{{transaction.appName}}</td>
+            <td :style="transaction.cellStyle">{{transaction.duration}}</td>
+            <td :style="transaction.cellStyle">{{transaction.category}}</td>
+            <td :style="transaction.cellStyle">{{transaction.displayName || transaction.name}}</td>
         </tr>
     </script>
     <script type="text/x-template" id="grid-template">
@@ -368,6 +432,7 @@ window.onload=function(){
                 <li v-if="model.name" class="propertyBullet"><span class="propertyName">Name</span>: {{model.name}}</li>
                 <li v-if="model.displayName" class="propertyBullet"><span class="propertyName">Display Name</span>: {{model.displayName}}</li>
                 <li v-if="model.duration" class="propertyBullet"><span class="propertyName">Duration</span>: {{model.duration}}</li>
+                <li v-if="model.ownDuration" class="propertyBullet"><span class="propertyName">Own Duration</span>: {{model.ownDuration}}</li>
                 <li v-if="model.parameters" class="bullet-document">
                     <div class="propertyName expandable" @click="toggleParameters">
                         Parameters <span>[{{parametersOpen ? '-' : '+'}}]</span>
@@ -382,7 +447,7 @@ window.onload=function(){
                 </li>
                 <li v-if="model.steps.length > 0" class="bulletSteps">
                     <div @click="toggleSteps" class="expandable">
-                        <span class="propertyName">Steps</span> ({{model.steps.length}}) <span>[{{stepsOpen ? '-' : '+'}}]</span>
+                        <span class="propertyName">Steps ({{model.steps.length}}) <span>[{{stepsOpen ? '-' : '+'}}]</span></span>
                     </div>
                     <ul v-show="stepsOpen">
                         <step
@@ -398,6 +463,7 @@ window.onload=function(){
 <script type="text/x-template" id="step-template">
         <li :class="model.isFinished ? (model.isSuccess ? 'bulletSuccess' : 'bulletFailure'): 'bulletProgress'">
             <div class="stepName expandable" @click="toggle">
+                <div class="step-category-label">{{model.category}}</div>
                 {{model.displayName ? model.displayName : model.name}}
                 <span>[{{open ? '-' : '+'}}]</span>
             </div>
@@ -407,6 +473,7 @@ window.onload=function(){
                 <li v-if="model.name" class="propertyBullet"><span class="propertyName">Name</span>: {{model.name}}</li>
                 <li v-if="model.displayName" class="propertyBullet"><span class="propertyName">Display Name</span>: {{model.displayName}}</li>
                 <li v-if="model.duration" class="propertyBullet"><span class="propertyName">Duration</span>: {{model.duration}}</li>
+                <li v-if="model.ownDuration" class="propertyBullet"><span class="propertyName">Duration</span>: {{model.ownDuration}}</li>
                 <li v-if="model.parameters" class="bullet-document">
                     <div class="propertyName expandable" @click="toggleParameters">
                         Parameters <span>[{{parametersOpen ? '-' : '+'}}]</span>
@@ -421,7 +488,7 @@ window.onload=function(){
                 </li>
                 <li v-if="model.steps.length > 0" class="bulletSteps">
                     <div @click="toggleSteps" class="expandable">
-                        <span class="propertyName">Steps</span> ({{model.steps.length}}) <span>[{{stepsOpen ? '-' : '+'}}]</span>
+                        <span class="propertyName">Steps ({{model.steps.length}}) <span>[{{stepsOpen ? '-' : '+'}}]</span></span>
                     </div>
                     <ul v-show="stepsOpen">
                         <step
@@ -452,9 +519,6 @@ window.onload=function(){
 
 <!-- app root element -->
     <div id="app">
-        <form id="search">
-            Search <input name="query" v-model="searchQuery">
-        </form>
         <grid :data="gridData"
               :columns="gridColumns"
               :headers="gridHeaders"

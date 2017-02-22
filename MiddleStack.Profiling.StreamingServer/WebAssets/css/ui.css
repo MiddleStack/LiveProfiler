@@ -285,3 +285,12 @@ li {
 .obj-property {
     display: inline-block;
 }
+
+.step-category-label {
+    display: inline-block;
+    color: white;
+    background-color: grey;
+    font-size: 0.8em;
+    padding: 0 0.5em 0 0.5em;
+    border-radius: 0.2em;
+}

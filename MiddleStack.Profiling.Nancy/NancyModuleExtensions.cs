@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
@@ -46,10 +47,11 @@ namespace MiddleStack.Profiling.Nancy
                 var name = GetName(ctx);
                 var displayName = GetDisplayName(ctx);
                 var correlationId = correlationIdGetter?.Invoke(ctx);
-                var parameters = !String.IsNullOrWhiteSpace(ctx.Request.Headers.ContentType) ? new
+                var parameters = new
                 {
-                    ContentType = ctx.Request.Headers.ContentType
-                } : null;
+                    Parameters = TranslateParameters(ctx.Request),
+                    Headers = TranslateHeaders(ctx.Request.Headers)
+                };
 
                 var transaction = LiveProfiler.Instance.Transaction(
                     "Nancy",
@@ -105,6 +107,23 @@ namespace MiddleStack.Profiling.Nancy
 
                 return null;
             };
+        }
+
+        private static object TranslateParameters(Request request)
+        {
+            var dictionary = new Dictionary<string, string>(request.    );
+        }
+
+        private static object TranslateHeaders(RequestHeaders headers)
+        {
+            var dictionary = new Dictionary<string,string>(headers.Count());
+
+            foreach (var headerKey in headers.Keys)
+            {
+                dictionary.Add(headerKey, String.Join(",", headers[headerKey]));
+            }
+
+            return dictionary;
         }
 
         private static string GetDisplayName(NancyContext ctx)
