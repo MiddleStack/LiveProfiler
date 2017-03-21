@@ -121,7 +121,7 @@ namespace MiddleStack.Profiling.Nancy.Tests
             transaction.Name.Should().Be("GET " + TestingModule.GetPath);
             transaction.DisplayName.Should().Be("GET " + url);
             transaction.CorrelationId.Should().Be(CorrelationId);
-            transaction.Parameters.Should().BeNull();
+            transaction.Parameters.Should().NotBeNull();
             transaction.State.Should().Be(TransactionState.Success);
             transaction.Result.Should().NotBeNull();
 
@@ -162,7 +162,7 @@ namespace MiddleStack.Profiling.Nancy.Tests
             transaction.Name.Should().Be("GET " + TestingModule.GetPath);
             transaction.DisplayName.Should().Be("GET " + url);
             transaction.CorrelationId.Should().Be(CorrelationId);
-            transaction.Parameters.Should().BeNull();
+            transaction.Parameters.Should().NotBeNull();
             transaction.State.Should().Be(TransactionState.Success);
             transaction.Result.Should().NotBeNull();
 
@@ -203,7 +203,7 @@ namespace MiddleStack.Profiling.Nancy.Tests
             transaction.Name.Should().Be("GET " + TestingModule.GetPath);
             transaction.DisplayName.Should().Be("GET " + url);
             transaction.CorrelationId.Should().Be(CorrelationId);
-            transaction.Parameters.Should().BeNull();
+            transaction.Parameters.Should().NotBeNull();
             transaction.State.Should().Be(TransactionState.Failure);
             transaction.Result.Should().NotBeNull();
 
@@ -244,7 +244,7 @@ namespace MiddleStack.Profiling.Nancy.Tests
             transaction.Name.Should().Be("GET " + TestingModule.GetPath);
             transaction.DisplayName.Should().Be("GET " + url);
             transaction.CorrelationId.Should().Be(CorrelationId);
-            transaction.Parameters.Should().BeNull();
+            transaction.Parameters.Should().NotBeNull();
             transaction.State.Should().Be(TransactionState.Failure);
             transaction.Result.Should().BeAssignableTo<Exception>();
         }
@@ -287,7 +287,7 @@ namespace MiddleStack.Profiling.Nancy.Tests
             transaction.Result.Should().NotBeNull();
 
             dynamic requestParameters = JObject.FromObject(transaction.Parameters);
-            ((string) requestParameters.ContentType).Should().Contain(requestContentType);
+            ((string) requestParameters.Headers["Content-Type"]).Should().Contain(requestContentType);
 
             dynamic transactionResult = JObject.FromObject(transaction.Result);
             ((int)transactionResult.StatusCode).Should().Be((int)result.StatusCode);
@@ -332,7 +332,7 @@ namespace MiddleStack.Profiling.Nancy.Tests
             transaction.Result.Should().NotBeNull();
 
             dynamic requestParameters = JObject.FromObject(transaction.Parameters);
-            ((string) requestParameters.ContentType).Should().Contain(requestContentType);
+            ((string)requestParameters.Headers["Content-Type"]).Should().Contain(requestContentType);
 
             dynamic transactionResult = JObject.FromObject(transaction.Result);
             ((int)transactionResult.StatusCode).Should().Be((int)result.StatusCode);
@@ -377,7 +377,7 @@ namespace MiddleStack.Profiling.Nancy.Tests
             transaction.Result.Should().NotBeNull();
 
             dynamic requestParameters = JObject.FromObject(transaction.Parameters);
-            ((string) requestParameters.ContentType).Should().Contain(requestContentType);
+            ((string)requestParameters.Headers["Content-Type"]).Should().Contain(requestContentType);
 
             dynamic transactionResult = JObject.FromObject(transaction.Result);
             ((int)transactionResult.StatusCode).Should().Be((int)result.StatusCode);

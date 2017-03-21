@@ -57,7 +57,7 @@
     <Compile Include="TransactionMode.cs" />
     <Compile Include="TransactionState.cs" />
     <Compile Include="LiveProfiler.cs" />
-    <Compile Include="CallContextHelper.cs" />
+    <Compile Include="TimingStore.cs" />
     <Compile Include="Events\IProfilerEventSubscriberAsync.cs" />
     <Compile Include="Events\ITransactionFinishEvent.cs" />
     <Compile Include="Events\IStepFinishEvent.cs" />

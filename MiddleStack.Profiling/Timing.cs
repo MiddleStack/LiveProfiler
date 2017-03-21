@@ -12,6 +12,7 @@ namespace MiddleStack.Profiling
 {
     internal abstract class Timing: ITiming, ITimingInfo
     {
+        private int _isDisposed;
         private readonly LiveProfiler _profiler;
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
         private readonly Lazy<List<Timing>> _children = new Lazy<List<Timing>>(() => new List<Timing>());
@@ -89,6 +90,11 @@ namespace MiddleStack.Profiling
         public void Dispose()
         {
             Success();
+
+            if (Interlocked.CompareExchange(ref _isDisposed, 1, 0) == 0)
+            {
+                TimingStore.DeleteTiming(this);
+            }
         }
 
         protected abstract IProfilerEvent GetFinishEvent(int version);
@@ -144,7 +150,10 @@ namespace MiddleStack.Profiling
                     VersionFinished = IncrementVersion();
                     _stopwatch.Stop();
 
-                    CallContextHelper.SetCurrentStep(Parent);
+                    if (Parent != null)
+                    {
+                        TimingStore.SetCurrentTiming(Parent);
+                    }
 
                     _profiler.RegisterEvent(GetFinishEvent(Version), this);
                 }
@@ -167,7 +176,10 @@ namespace MiddleStack.Profiling
                     VersionFinished = IncrementVersion();
                     _stopwatch.Stop();
 
-                    CallContextHelper.SetCurrentStep(Parent);
+                    if (Parent != null)
+                    {
+                        TimingStore.SetCurrentTiming(Parent);
+                    }
 
                     _profiler.RegisterEvent(GetFinishEvent(Version), this);
                 }

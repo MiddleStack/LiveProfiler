@@ -35,7 +35,7 @@ namespace MiddleStack.Profiling
             if (String.IsNullOrWhiteSpace(category)) throw new ArgumentNullException(nameof(category));
             if (String.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
 
-            var currentTiming = CallContextHelper.GetCurrentTiming();
+            var currentTiming = TimingStore.GetCurrentTiming();
 
             if (currentTiming != null
                 && (predicate == null || predicate(new ProfilerContext(currentTiming))))
@@ -61,7 +61,7 @@ namespace MiddleStack.Profiling
                 {
                     step = new Step(this, category, name, displayName, parameters, currentStep);
 
-                    CallContextHelper.SetCurrentStep(step);
+                    TimingStore.SetCurrentTiming(step);
                     RegisterEvent(new StepStartEvent(step, step.Version), step);
                 }
             }
@@ -73,7 +73,7 @@ namespace MiddleStack.Profiling
             if (String.IsNullOrWhiteSpace(category)) throw new ArgumentNullException(nameof(category));
             if (String.IsNullOrWhiteSpace(name)) throw new ArgumentNullException(nameof(name));
 
-            var currentStep = CallContextHelper.GetCurrentTiming();
+            var currentStep = TimingStore.GetCurrentTiming();
 
             if (currentStep != null && currentStep.State == TransactionState.Inflight && mode == TransactionMode.New)
             {
@@ -94,7 +94,7 @@ namespace MiddleStack.Profiling
 
             lock (transaction.SyncRoot)
             {
-                CallContextHelper.SetCurrentStep(transaction);
+                TimingStore.SetCurrentTiming(transaction);
                 RegisterEvent(new TransactionStartEvent(transaction, transaction.Version), transaction);
             }
 
@@ -171,7 +171,7 @@ namespace MiddleStack.Profiling
 
         internal void TestingReset()
         {
-            CallContextHelper.SetCurrentStep(null);
+            TimingStore.TestReset();
             lock (((LiveProfiler) Instance)._recentTransactions)
             {
                 ((LiveProfiler)Instance)._recentTransactions.Clear();

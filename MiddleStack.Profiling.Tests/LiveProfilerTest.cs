@@ -70,7 +70,7 @@ namespace MiddleStack.Profiling.Tests
             // verify
             finishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Success, _duration0);
             unfinishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Inflight);
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -86,7 +86,7 @@ namespace MiddleStack.Profiling.Tests
 
             // verify
             finishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Success, TimeSpan.Zero, correlationId:CorrelationId0);
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -120,7 +120,7 @@ namespace MiddleStack.Profiling.Tests
 
             // verify
             finishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Success, _duration0, result: Result0);
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -137,7 +137,7 @@ namespace MiddleStack.Profiling.Tests
 
             // verify
             finishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Failure, _duration0, result: Result0);
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -162,7 +162,7 @@ namespace MiddleStack.Profiling.Tests
                     children[0].AssertChildlessStep(Category1, Name1, DisplayName1, Parameter1, TimeSpan.Zero, TransactionState.Success, _duration0, result: Result0);
                 });
 
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -187,7 +187,7 @@ namespace MiddleStack.Profiling.Tests
                     children[0].AssertChildlessStep(Category1, Name1, DisplayName1, Parameter1, TimeSpan.Zero, TransactionState.Failure, _duration0, result: Result0);
                 });
 
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -216,7 +216,7 @@ namespace MiddleStack.Profiling.Tests
             // verify
             finishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Success, _duration0);
             unfinishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, Parameter0, TimeSpan.Zero, TransactionState.Inflight);
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -325,7 +325,7 @@ namespace MiddleStack.Profiling.Tests
                         });
                 });
 
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -423,7 +423,7 @@ namespace MiddleStack.Profiling.Tests
                         });
                 });
 
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -524,7 +524,7 @@ namespace MiddleStack.Profiling.Tests
                         });
                 });
 
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -626,7 +626,7 @@ namespace MiddleStack.Profiling.Tests
                         });
                 });
 
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -635,7 +635,7 @@ namespace MiddleStack.Profiling.Tests
             Action thrower = () => LiveProfiler.Instance.Step(null, Name0, Parameter0);
 
             thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("category");
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -644,7 +644,7 @@ namespace MiddleStack.Profiling.Tests
             Action thrower = () => LiveProfiler.Instance.Step("    ", Name0, Parameter0);
 
             thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("category");
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -653,7 +653,7 @@ namespace MiddleStack.Profiling.Tests
             Action thrower = () => LiveProfiler.Instance.Step(Category0, null, Parameter0);
 
             thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("name");
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -662,7 +662,7 @@ namespace MiddleStack.Profiling.Tests
             Action thrower = () => LiveProfiler.Instance.Step(Category0, "    ", Parameter0);
 
             thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("name");
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -678,7 +678,7 @@ namespace MiddleStack.Profiling.Tests
 
             // verify
             finishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, null, TimeSpan.Zero, TransactionState.Success, TimeSpan.Zero);
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -718,7 +718,7 @@ namespace MiddleStack.Profiling.Tests
                             c1[0].AssertChildlessStep(Category2, Name2, DisplayName2, Parameter2, TimeSpan.Zero, TransactionState.Success, TimeSpan.Zero);
                         });
                 });
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -739,7 +739,7 @@ namespace MiddleStack.Profiling.Tests
             // verify
             step.Should().BeOfType<InertTiming>();
             finishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, null, TimeSpan.Zero, TransactionState.Success, TimeSpan.Zero);
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -748,7 +748,7 @@ namespace MiddleStack.Profiling.Tests
             Action thrower = () => LiveProfiler.Instance.Transaction(null, Name0, Parameter0);
 
             thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("category");
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -757,7 +757,7 @@ namespace MiddleStack.Profiling.Tests
             Action thrower = () => LiveProfiler.Instance.Transaction("    ", Name0, Parameter0);
 
             thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("category");
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -766,7 +766,7 @@ namespace MiddleStack.Profiling.Tests
             Action thrower = () => LiveProfiler.Instance.Transaction(Category0, null, Parameter0);
 
             thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("name");
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -775,7 +775,7 @@ namespace MiddleStack.Profiling.Tests
             Action thrower = () => LiveProfiler.Instance.Transaction(Category0, "    ", Parameter0);
 
             thrower.ShouldThrowExactly<ArgumentNullException>().Which.ParamName.Should().Be("name");
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -791,7 +791,7 @@ namespace MiddleStack.Profiling.Tests
 
             // verify
             finishedSnapshot.AssertChildlessStep(Category0, Name0, DisplayName0, null, TimeSpan.Zero, TransactionState.Success, TimeSpan.Zero);
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -799,12 +799,12 @@ namespace MiddleStack.Profiling.Tests
         {
             using (var transaction = LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0))
             {
-                CallContextHelper.GetCurrentTiming().Should().BeSameAs(transaction);
+                TimingStore.GetCurrentTiming().Should().BeSameAs(transaction);
 
                 Action thrower = () => LiveProfiler.Instance.Transaction(Category1, Name1, DisplayName1);
                 thrower.ShouldThrow<InvalidOperationException>();
 
-                CallContextHelper.GetCurrentTiming().Should().BeSameAs(transaction);
+                TimingStore.GetCurrentTiming().Should().BeSameAs(transaction);
             }
         }
 
@@ -987,7 +987,7 @@ namespace MiddleStack.Profiling.Tests
                     c[0].AssertChildlessStep(Category2, Name2, DisplayName2, Parameter2, _duration1, TransactionState.Success, _duration2);
                 });
 
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -1020,7 +1020,7 @@ namespace MiddleStack.Profiling.Tests
                     c[0].AssertChildlessStep(Category2, Name2, DisplayName2, Parameter2, _duration1, TransactionState.Success, _duration2);
                 });
 
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -1057,7 +1057,7 @@ namespace MiddleStack.Profiling.Tests
 
             finishedSnapshot0.ShouldBeEquivalentTo(finishedSnapshot1);
 
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -1089,7 +1089,7 @@ namespace MiddleStack.Profiling.Tests
                     c[0].AssertChildlessStep(Category2, Name2, DisplayName2, Parameter2, _duration0, TransactionState.Success, _duration1);
                 });
 
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -1425,15 +1425,15 @@ namespace MiddleStack.Profiling.Tests
         [Test]
         public void LiveProfiler_Step_NoCurrentTransaction_ReturnsInertStep()
         {
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
 
             using (var step = LiveProfiler.Instance.Step(Category0, Name0, DisplayName0, Parameter0))
             {
                 step.Should().BeOfType<InertTiming>();
-                CallContextHelper.GetCurrentTiming().Should().BeNull();
+                TimingStore.GetCurrentTiming().Should().BeNull();
             }
 
-            CallContextHelper.GetCurrentTiming().Should().BeNull();
+            TimingStore.GetCurrentTiming().Should().BeNull();
         }
 
         [Test]
@@ -1447,14 +1447,14 @@ namespace MiddleStack.Profiling.Tests
 
             transaction.GetTransactionSnapshot().State.Should().Be(TransactionState.Success);
 
-            CallContextHelper.SetCurrentStep((Transaction)transaction);
+            TimingStore.SetCurrentTiming((Transaction)transaction);
 
             using (var step = LiveProfiler.Instance.Step(Category0, Name0, DisplayName0, Parameter0))
             {
                 step.Should().BeOfType<InertTiming>();
             }
 
-            CallContextHelper.GetCurrentTiming().Should().Be(transaction);
+            TimingStore.GetCurrentTiming().Should().Be(transaction);
         }
 
         [Test]
@@ -1583,6 +1583,31 @@ namespace MiddleStack.Profiling.Tests
             // verify
             result.Select(t => t.Id)
                 .Should().Equal(finishedTransactions.Reverse().Take(100).Select(t => t.GetTransactionSnapshot().Id));
+        }
+
+        [Test]
+        public void LiveProfiler_CallingAcrossAppDomainInsideTransaction_ShouldNotThrowException()
+        {
+            using (LiveProfiler.Instance.Transaction(Category0, Name0, DisplayName0))
+            {
+                var domain = AppDomain.CreateDomain(Guid.NewGuid().ToString(), null,
+                    new AppDomainSetup
+                    {
+                        ApplicationBase = AppDomain.CurrentDomain.BaseDirectory
+                    });
+                var obj = (CrossDomainObject)domain.CreateInstance(typeof(CrossDomainObject).Assembly.FullName,
+                    typeof(CrossDomainObject).FullName).Unwrap();
+
+                obj.Hello();
+            }
+        }
+
+        private class CrossDomainObject : MarshalByRefObject
+        {
+            public string Hello()
+            {
+                return "Hello";
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -111,7 +112,19 @@ namespace MiddleStack.Profiling.Nancy
 
         private static object TranslateParameters(Request request)
         {
-            var dictionary = new Dictionary<string, string>(request.    );
+            var dictionary = new Dictionary<string, string>();
+
+            foreach (var key in request.Query.Keys)
+            {
+                dictionary[key] = request.Query[key];
+            }
+
+            foreach (var key in request.Form.Keys)
+            {
+                dictionary[key] = request.Form[key];
+            }
+
+            return dictionary;
         }
 
         private static object TranslateHeaders(RequestHeaders headers)
