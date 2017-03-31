@@ -49,9 +49,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DesktopMonitorFeeder.cs" />
+    <Compile Include="MonitoringFeeder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="DesktopMonitorFeedConfiguration.cs" />
+    <Compile Include="MonitoringFeedConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MiddleStack.Profiling\MiddleStack.Profiling.csproj">
