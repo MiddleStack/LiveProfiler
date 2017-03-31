@@ -24,5 +24,7 @@ namespace MiddleStack.Profiling
         {
             throw new InvalidOperationException("There's no transaction in the current context.");
         }
+
+        public TransactionState State { get; } = TransactionState.Success;
     }
 }

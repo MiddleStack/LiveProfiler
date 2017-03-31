@@ -7,8 +7,8 @@
     <ProjectGuid>{C9F937F7-387A-4CBC-862C-6933A72CF97A}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MiddleStack.Profiling.StreamingServer</RootNamespace>
-    <AssemblyName>MiddleStack.Profiling.StreamingServer</AssemblyName>
+    <RootNamespace>MiddleStack.Profiling.Monitor</RootNamespace>
+    <AssemblyName>LiveProfilerMonitor</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

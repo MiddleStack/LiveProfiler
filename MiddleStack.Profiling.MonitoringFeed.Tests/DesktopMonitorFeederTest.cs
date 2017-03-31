@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -9,17 +7,16 @@ using Microsoft.AspNet.SignalR.Client;
 using Microsoft.Owin.Cors;
 using Microsoft.Owin.Hosting;
 using MiddleStack.Profiling.Events;
-using MiddleStack.Profiling.StreamingServer;
+using MiddleStack.Profiling.Monitor;
 using MiddleStack.Profiling.Testing;
 using MiddleStack.Testing;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 using Owin;
 
-namespace MiddleStack.Profiling.Streaming.Tests
+namespace MiddleStack.Profiling.MonitoringFeed.Tests
 {
     [TestFixture]
-    public class ProfilerEventStreamerTest
+    public class MonitoringFeederTest
     {
         private const string Category0 = "F31552DCD4C246B9AA59883ACD7739A5";
         private const string Name0 = "915057F4C8C4411C8F9A818A9A1ED6AB";
@@ -94,7 +91,7 @@ namespace MiddleStack.Profiling.Streaming.Tests
                 hubConnection.Start().Wait();
 
                 // Event source connection
-                var streamer = new ProfilerEventStreamer(new StreamingConfiguration
+                var streamer = new MonitoringFeeder(new MonitoringFeedConfiguration
                 {
                     AppName = AppName,
                     HostName = HostName,
@@ -211,7 +208,7 @@ namespace MiddleStack.Profiling.Streaming.Tests
             using (var hubConnection = new HubConnection(_baseUrl))
             {
                 // Event source connection
-                var streamer = new ProfilerEventStreamer(new StreamingConfiguration
+                var streamer = new MonitoringFeeder(new MonitoringFeedConfiguration
                 {
                     AppName = AppName,
                     HostName = HostName,
@@ -353,7 +350,7 @@ namespace MiddleStack.Profiling.Streaming.Tests
                 hubConnection.Start().Wait();
 
                 // Event source connection
-                var streamer = new ProfilerEventStreamer(new StreamingConfiguration
+                var streamer = new MonitoringFeeder(new MonitoringFeedConfiguration
                 {
                     AppName = AppName,
                     HostName = HostName,

@@ -24,13 +24,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiddleStack.Profiling.Nancy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiddleStack.Profiling.Nancy.Tests", "MiddleStack.Profiling.Nancy.Tests\MiddleStack.Profiling.Nancy.Tests.csproj", "{CD8E13D9-9462-4440-9FF7-8C60C3E4B763}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiddleStack.Profiling.Streaming", "MiddleStack.Profiling.Streaming\MiddleStack.Profiling.Streaming.csproj", "{2ED51C81-0287-44CF-9A14-A7EA36805053}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiddleStack.Profiling.StreamingServer", "MiddleStack.Profiling.StreamingServer\MiddleStack.Profiling.StreamingServer.csproj", "{C9F937F7-387A-4CBC-862C-6933A72CF97A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiddleStack.Profiling.Streaming.Tests", "MiddleStack.Profiling.Streaming.Tests\MiddleStack.Profiling.Streaming.Tests.csproj", "{28BD5749-7CE2-4877-A185-622DA8772891}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiddleStack.Profiling.Proxying", "MiddleStack.Profiling.Proxying\MiddleStack.Profiling.Proxying.csproj", "{CD550C66-DAFE-4FAA-867D-478F5E8D131F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiddleStack.Profiling.MonitoringFeed", "MiddleStack.Profiling.MonitoringFeed\MiddleStack.Profiling.MonitoringFeed.csproj", "{2ED51C81-0287-44CF-9A14-A7EA36805053}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiddleStack.Profiling.MonitoringFeed.Tests", "MiddleStack.Profiling.MonitoringFeed.Tests\MiddleStack.Profiling.MonitoringFeed.Tests.csproj", "{28BD5749-7CE2-4877-A185-622DA8772891}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiddleStack.Profiling.Monitor", "MiddleStack.Profiling.Monitor\MiddleStack.Profiling.Monitor.csproj", "{C9F937F7-387A-4CBC-862C-6933A72CF97A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{44AEBF08-B4D8-4B0E-A565-920A9ED7BB08}"
+	ProjectSection(SolutionItems) = preProject
+		build\LiveProfilerMonitor.zip = build\LiveProfilerMonitor.zip
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -70,22 +75,22 @@ Global
 		{CD8E13D9-9462-4440-9FF7-8C60C3E4B763}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD8E13D9-9462-4440-9FF7-8C60C3E4B763}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD8E13D9-9462-4440-9FF7-8C60C3E4B763}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2ED51C81-0287-44CF-9A14-A7EA36805053}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2ED51C81-0287-44CF-9A14-A7EA36805053}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2ED51C81-0287-44CF-9A14-A7EA36805053}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2ED51C81-0287-44CF-9A14-A7EA36805053}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C9F937F7-387A-4CBC-862C-6933A72CF97A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C9F937F7-387A-4CBC-862C-6933A72CF97A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C9F937F7-387A-4CBC-862C-6933A72CF97A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C9F937F7-387A-4CBC-862C-6933A72CF97A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{28BD5749-7CE2-4877-A185-622DA8772891}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{28BD5749-7CE2-4877-A185-622DA8772891}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{28BD5749-7CE2-4877-A185-622DA8772891}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{28BD5749-7CE2-4877-A185-622DA8772891}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CD550C66-DAFE-4FAA-867D-478F5E8D131F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CD550C66-DAFE-4FAA-867D-478F5E8D131F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD550C66-DAFE-4FAA-867D-478F5E8D131F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD550C66-DAFE-4FAA-867D-478F5E8D131F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2ED51C81-0287-44CF-9A14-A7EA36805053}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2ED51C81-0287-44CF-9A14-A7EA36805053}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2ED51C81-0287-44CF-9A14-A7EA36805053}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2ED51C81-0287-44CF-9A14-A7EA36805053}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28BD5749-7CE2-4877-A185-622DA8772891}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28BD5749-7CE2-4877-A185-622DA8772891}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28BD5749-7CE2-4877-A185-622DA8772891}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28BD5749-7CE2-4877-A185-622DA8772891}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9F937F7-387A-4CBC-862C-6933A72CF97A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9F937F7-387A-4CBC-862C-6933A72CF97A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9F937F7-387A-4CBC-862C-6933A72CF97A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9F937F7-387A-4CBC-862C-6933A72CF97A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

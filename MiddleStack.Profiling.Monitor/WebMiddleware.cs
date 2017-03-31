@@ -5,10 +5,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.Owin;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
-namespace MiddleStack.Profiling.StreamingServer
+namespace MiddleStack.Profiling.Monitor
 {
     internal class WebMiddleware : OwinMiddleware
     {

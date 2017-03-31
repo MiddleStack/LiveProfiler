@@ -7,7 +7,7 @@ using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 using MiddleStack.Profiling.Events;
 
-namespace MiddleStack.Profiling.StreamingServer
+namespace MiddleStack.Profiling.Monitor
 {
     public class EventIngestHub: Hub
     {

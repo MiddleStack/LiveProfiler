@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace MiddleStack.Profiling.Streaming
+namespace MiddleStack.Profiling.MonitoringFeed
 {
     /// <summary>
-    ///     Configures the behaviors of <see cref="ProfilerEventStreamer"/>
+    ///     Configures the behaviors of <see cref="MonitoringFeeder"/>
     /// </summary>
     [DataContract]
-    public class StreamingConfiguration
+    public class MonitoringFeedConfiguration
     {
         /// <summary>
         ///     Gets or sets the URL of the server that events are streamed to.
@@ -21,7 +21,7 @@ namespace MiddleStack.Profiling.Streaming
         public Uri ServerUrl { get; set; }
 
         /// <summary>
-        ///     Gets or sets whether streaming is enabled for this <see cref="ProfilerEventStreamer"/>.
+        ///     Gets or sets whether streaming is enabled for this <see cref="MonitoringFeeder"/>.
         ///     If unspecified, the default value is <see langword="true"/>.
         /// </summary>
         /// <value>

@@ -6,7 +6,7 @@ using Microsoft.Owin.Cors;
 using Microsoft.Owin.Hosting;
 using Owin;
 
-namespace MiddleStack.Profiling.StreamingServer
+namespace MiddleStack.Profiling.Monitor
 {
     class Program
     {

@@ -7,8 +7,8 @@
     <ProjectGuid>{28BD5749-7CE2-4877-A185-622DA8772891}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MiddleStack.Profiling.Streaming.Tests</RootNamespace>
-    <AssemblyName>MiddleStack.Profiling.Streaming.Tests</AssemblyName>
+    <RootNamespace>MiddleStack.Profiling.MonitoringFeed.Tests</RootNamespace>
+    <AssemblyName>MiddleStack.Profiling.MonitoringFeed.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -108,7 +108,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ProfilerEventStreamerTest.cs" />
+    <Compile Include="DesktopMonitorFeederTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -116,13 +116,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MiddleStack.Profiling.StreamingServer\MiddleStack.Profiling.StreamingServer.csproj">
-      <Project>{c9f937f7-387a-4cbc-862c-6933a72cf97a}</Project>
-      <Name>MiddleStack.Profiling.StreamingServer</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MiddleStack.Profiling.Streaming\MiddleStack.Profiling.Streaming.csproj">
+    <ProjectReference Include="..\MiddleStack.Profiling.MonitoringFeed\MiddleStack.Profiling.MonitoringFeed.csproj">
       <Project>{2ed51c81-0287-44cf-9a14-a7ea36805053}</Project>
-      <Name>MiddleStack.Profiling.Streaming</Name>
+      <Name>MiddleStack.Profiling.MonitoringFeed</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MiddleStack.Profiling.Monitor\MiddleStack.Profiling.Monitor.csproj">
+      <Project>{c9f937f7-387a-4cbc-862c-6933a72cf97a}</Project>
+      <Name>MiddleStack.Profiling.Monitor</Name>
     </ProjectReference>
     <ProjectReference Include="..\MiddleStack.Profiling\MiddleStack.Profiling.csproj">
       <Project>{B159F9D2-1822-4F66-BF70-BC8308F41EB0}</Project>

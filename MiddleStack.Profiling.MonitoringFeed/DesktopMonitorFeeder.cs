@@ -8,13 +8,13 @@ using Microsoft.AspNet.SignalR.Client;
 using MiddleStack.Profiling.Events;
 using Newtonsoft.Json;
 
-namespace MiddleStack.Profiling.Streaming
+namespace MiddleStack.Profiling.MonitoringFeed
 {
     /// <summary>
-    ///     Streams profiler events to a WebSocket-based streaming server, 
+    ///     Streams profiler events to the Desktop Monitor, 
     ///     typically running on local host, tcp port 7700.
     /// </summary>
-    public class ProfilerEventStreamer: IProfilerEventSubscriberAsync
+    public class MonitoringFeeder: IProfilerEventSubscriberAsync
     {
         private readonly Uri _serverUrl;
         private readonly bool _enabled;
@@ -26,13 +26,13 @@ namespace MiddleStack.Profiling.Streaming
         private static readonly TimeSpan ReconnectDelay = TimeSpan.FromSeconds(3);
 
         /// <summary>
-        ///     Initializes a new instance of <see cref="ProfilerEventStreamer"/>.
+        ///     Initializes a new instance of <see cref="MonitoringFeeder"/>.
         /// </summary>
         /// <param name="config">
         ///     Optional. The configuration object that overrides the default settings
         ///     and the configuration file.
         /// </param>
-        public ProfilerEventStreamer(StreamingConfiguration config = null)
+        public MonitoringFeeder(MonitoringFeedConfiguration config = null)
         {
             _serverUrl = config?.ServerUrl ?? new Uri("http://localhost:7700");
             _enabled = config?.Enabled ?? true;
@@ -95,7 +95,7 @@ namespace MiddleStack.Profiling.Streaming
             }
             catch (Exception x)
             {
-                Trace.WriteLine($"ProfilerEventStreamer: Exception encountered while sending event to server: {x}");
+                Trace.WriteLine($"MonitoringFeeder: Exception encountered while sending event to server: {x}");
             }
         }
 

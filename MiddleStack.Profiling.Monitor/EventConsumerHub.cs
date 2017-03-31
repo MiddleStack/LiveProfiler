@@ -5,7 +5,7 @@ using log4net;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 
-namespace MiddleStack.Profiling.StreamingServer
+namespace MiddleStack.Profiling.Monitor
 {
     public class EventConsumerHub: Hub
     {
