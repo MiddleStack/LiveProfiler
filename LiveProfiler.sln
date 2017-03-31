@@ -32,11 +32,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiddleStack.Profiling.Monit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiddleStack.Profiling.Monitor", "MiddleStack.Profiling.Monitor\MiddleStack.Profiling.Monitor.csproj", "{C9F937F7-387A-4CBC-862C-6933A72CF97A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{44AEBF08-B4D8-4B0E-A565-920A9ED7BB08}"
-	ProjectSection(SolutionItems) = preProject
-		build\LiveProfilerMonitor.zip = build\LiveProfilerMonitor.zip
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
