@@ -48,5 +48,14 @@ namespace MiddleStack.Profiling
         ///     Never <see langword="null"/>.
         /// </returns>
         TransactionSnapshot GetTransactionSnapshot();
+
+        /// <summary>
+        ///     Gets the state of this transaction or step.
+        /// </summary>
+        /// <value>
+        ///     A <see cref="TransactionState"/> value indicating the state
+        ///     of this transaction or step.
+        /// </value>
+        TransactionState State { get; }
     }
 }

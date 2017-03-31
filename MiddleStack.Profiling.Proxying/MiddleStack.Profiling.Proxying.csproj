@@ -40,8 +40,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MethodOptions.cs" />
     <Compile Include="LiveProfilerProxyFactory.cs" />
+    <Compile Include="MethodTimingStartOptions.cs" />
+    <Compile Include="MethodTimingEndOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="LiveProfilerProxyOptions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MiddleStack.Profiling\MiddleStack.Profiling.csproj">
