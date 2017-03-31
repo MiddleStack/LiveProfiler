@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>MiddleStack.Profiling.MonitoringFeed</id>
+    <id>LiveProfiler.MonitoringFeed</id>
     <version>0.3.0</version>
     <authors>Tony Chow</authors>
     <owners>Tony Chow</owners>

@@ -60,7 +60,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="MiddleStack.Profiling.DesktopMonitorFeed.nuspec">
+    <None Include="MiddleStack.Profiling.MonitoringFeed.nuspec">
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
