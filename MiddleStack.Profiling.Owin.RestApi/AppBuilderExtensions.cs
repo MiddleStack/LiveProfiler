@@ -11,8 +11,8 @@ namespace MiddleStack.Profiling.Owin.RestApi
         /// <remarks>
         ///     <para>The endpoints offered are:</para>
         ///     <list type="bullet">
-        ///         <item>GET /liveprofiler/api/v1.0/transactions/recent</item>
-        ///         <item>GET /liveprofiler/api/v1.0/transactions/inflight</item>
+        ///         <item>GET /v1/transactions/recent</item>
+        ///         <item>GET /v1/transactions/inflight</item>
         ///     </list>
         /// </remarks>
         /// <param name="appBuilder">

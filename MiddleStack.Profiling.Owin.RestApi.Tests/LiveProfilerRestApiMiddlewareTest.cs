@@ -57,7 +57,7 @@ namespace MiddleStack.Profiling.Owin.RestApi.Tests
         {
             using (var client = new HttpClient())
             {
-                var response = client.GetAsync(_url + "/liveprofiler/api/v1.0/transactions/recent").Result;
+                var response = client.GetAsync(_url + "/v1/transactions/recent").Result;
 
                 response.StatusCode.Should().Be(HttpStatusCode.OK);
                 response.Content.Headers.ContentType.MediaType.Should().Be("application/json");
@@ -99,7 +99,7 @@ namespace MiddleStack.Profiling.Owin.RestApi.Tests
                     inflightTransactions.Add(transaction);
                 }
 
-                var response = client.GetAsync(_url + "/liveprofiler/api/v1.0/transactions/recent").Result;
+                var response = client.GetAsync(_url + "/v1/transactions/recent").Result;
 
                 response.StatusCode.Should().Be(HttpStatusCode.OK);
                 response.Content.Headers.ContentType.MediaType.Should().Be("application/json");
@@ -118,7 +118,7 @@ namespace MiddleStack.Profiling.Owin.RestApi.Tests
         {
             using (var client = new HttpClient())
             {
-                var response = client.GetAsync(_url + "/liveprofiler/api/v1.0/transactions/inflight").Result;
+                var response = client.GetAsync(_url + "/v1/transactions/inflight").Result;
 
                 response.StatusCode.Should().Be(HttpStatusCode.OK);
                 response.Content.Headers.ContentType.MediaType.Should().Be("application/json");
@@ -155,7 +155,7 @@ namespace MiddleStack.Profiling.Owin.RestApi.Tests
                     inflightTransactions.Add(transaction);
                 }
 
-                var response = client.GetAsync(_url + "/liveprofiler/api/v1.0/transactions/inflight").Result;
+                var response = client.GetAsync(_url + "/v1/transactions/inflight").Result;
 
                 response.StatusCode.Should().Be(HttpStatusCode.OK);
                 response.Content.Headers.ContentType.MediaType.Should().Be("application/json");

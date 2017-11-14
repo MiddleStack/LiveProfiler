@@ -21,12 +21,12 @@ namespace MiddleStack.Profiling.Owin.RestApi
         public override async Task Invoke(IOwinContext context)
         {
             if (context.Request.Method == "GET"
-                && context.Request.Path == new PathString("/liveprofiler/api/v1.0/transactions/recent"))
+                && context.Request.Path == new PathString("/v1/transactions/recent"))
             {
                 await Recent(context, false);
             }
             else if (context.Request.Method == "GET"
-                && context.Request.Path == new PathString("/liveprofiler/api/v1.0/transactions/inflight"))
+                && context.Request.Path == new PathString("/v1/transactions/inflight"))
             {
                 await Recent(context, true);
             }
