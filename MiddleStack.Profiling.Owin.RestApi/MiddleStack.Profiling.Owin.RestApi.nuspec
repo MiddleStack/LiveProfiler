@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>LiveProfiler.Owin.RestAPI</id>
-    <version>0.4.1</version>
+    <version>0.4.4</version>
     <authors>Tony Chow</authors>
     <owners>Tony Chow</owners>
     <description>A simple REST API for LiveProfiler.</description>
